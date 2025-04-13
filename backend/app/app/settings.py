@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'core',
     'user',
-    'post',
+    'trivia',
     'django_filters',
 ]
 
