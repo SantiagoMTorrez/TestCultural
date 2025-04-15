@@ -143,6 +143,10 @@ LOCALE_PATHS = [
 
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 
 
@@ -199,6 +203,7 @@ CORS_ALLOW_HEADERS = [
 CORS_EXPOSE_HEADERS = ['Set-Cookie']
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000',
+                        'http://localhost:8080',
                         'http://127.0.0.1:8000',
                         'http://localhost:65420',
                         'http://localhost:58315']  # Add your domain
@@ -206,12 +211,12 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:8000',
 
 CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SECURE = True  # Asegúrate de que sea False solo si no estás usando HTTPS
-CSRF_COOKIE_SAMESITE = 'None'  # 'None' si 'Lax' no funciona para tus necesidades
+CSRF_COOKIE_SECURE = True  
+CSRF_COOKIE_SAMESITE = 'None' 
 
-# Configuración para la cookie de sesión
+
 SESSION_COOKIE_HTTPONLY = False
-SESSION_COOKIE_SECURE = True  # Asegúrate de que sea False solo si no estás usando HTTPS
+SESSION_COOKIE_SECURE = True 
 SESSION_COOKIE_SAMESITE = 'None'
 
 SPECTACULAR_SETTINGS = {

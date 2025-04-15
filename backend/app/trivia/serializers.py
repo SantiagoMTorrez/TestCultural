@@ -24,6 +24,7 @@ class QuestionStatementSerializer(serializers.ModelSerializer):
 class TestCreationSerializer(serializers.Serializer):
     n = serializers.IntegerField(min_value=1)
     category = serializers.IntegerField(required=False, allow_null=True)
+    time_limit_minutes = serializers.IntegerField(required=False)
 
 class TestCreationResponseSerializer(serializers.Serializer):
     test_id = serializers.IntegerField()

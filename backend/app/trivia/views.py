@@ -22,6 +22,7 @@ from .serializers import (
     QuestionCreateSerializer,
     QuestionTypeSerializer
 )
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from drf_spectacular.types import OpenApiTypes
 
@@ -31,13 +32,13 @@ from drf_spectacular.types import OpenApiTypes
     request=TestCreationSerializer,
     responses={201: TestCreationResponseSerializer, 400: OpenApiTypes.OBJECT},
     tags=["Tests"],
-    examples=[OpenApiExample('Ejemplo de creación de test', value={'n': 5, 'category': 2}, request_only=True)]
+    examples=[OpenApiExample('Ejemplo de creación de test', value={'n': 5, 'category': 2, 'time_limit_minutes': 10}, request_only=True)]
 )
 class TestCreationView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     def post(self, request):
-        serializer = TestCreationSerializer(data=request.data)
+        serializer = TestCreationSerializer(data={**request.data})
         if serializer.is_valid():
             n = serializer.validated_data['n']
             category_id = serializer.validated_data.get('category')
@@ -61,10 +62,10 @@ class TestCreationView(APIView):
 @extend_schema(
     summary="Recuperar enunciado de pregunta",
     description="Devuelve el enunciado y las opciones de respuesta de una pregunta específica de un test.",
-    parameters=[
-        OpenApiParameter("participation_id", OpenApiTypes.INT, description="ID de la participación", required=True),
-        OpenApiParameter("question_number", OpenApiTypes.INT, description="Número secuencial de la pregunta", required=True)
-    ],
+    # parameters=[
+    #     OpenApiParameter("participation_id", OpenApiTypes.INT, description="ID de la participación", required=True),
+    #     OpenApiParameter("question_number", OpenApiTypes.INT, description="Número secuencial de la pregunta", required=True)
+    # ],
     responses={200: QuestionStatementSerializer, 404: OpenApiTypes.OBJECT},
     tags=["Tests"]
 )
@@ -87,10 +88,10 @@ class QuestionRetrieveView(APIView):
 @extend_schema(
     summary="Envío de respuesta",
     description="Recibe la respuesta de una pregunta, indica si es correcta y devuelve la explicación. Si es la última pregunta, incluye el resultado final del test.",
-    parameters=[
-        OpenApiParameter("participation_id", OpenApiTypes.INT, description="ID de la participación", required=True),
-        OpenApiParameter("question_number", OpenApiTypes.INT, description="Número secuencial de la pregunta", required=True)
-    ],
+    # parameters=[
+    #     OpenApiParameter("participation_id", OpenApiTypes.INT, description="ID de la participación", required=True),
+    #     OpenApiParameter("question_number", OpenApiTypes.INT, description="Número secuencial de la pregunta", required=True)
+    # ],
     request=AnswerSubmissionSerializer,
     responses={200: AnswerSubmissionResponseSerializer, 400: OpenApiTypes.OBJECT, 404: OpenApiTypes.OBJECT},
     tags=["Tests"],
@@ -99,41 +100,66 @@ class QuestionRetrieveView(APIView):
 class AnswerSubmissionView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
     def post(self, request, participation_id, question_number):
         try:
             participation = TestParticipation.objects.get(id=participation_id, user=request.user)
         except TestParticipation.DoesNotExist:
             return Response({"error": "Participación no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+        current_time = timezone.now()
+        time_limit = participation.test.time_limit_minutes
+        end_time = participation.started_at + timezone.timedelta(minutes=time_limit)
+        if current_time > end_time:
+            return Response({"error": "Se ha excedido el límite de tiempo del test."}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
             test_question = TestQuestion.objects.get(test=participation.test, question_number=question_number)
         except TestQuestion.DoesNotExist:
             return Response({"error": "Pregunta no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+        
         if ParticipationResponse.objects.filter(test_participation=participation, test_question=test_question).exists():
             return Response({"error": "Esta pregunta ya fue contestada."}, status=status.HTTP_400_BAD_REQUEST)
+        
         serializer = AnswerSubmissionSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
         answer_option_id = serializer.validated_data['answer_option']
         try:
             answer_option = AnswerOption.objects.get(id=answer_option_id, question=test_question.question)
         except AnswerOption.DoesNotExist:
             return Response({"error": "Opción de respuesta inválida para esta pregunta."}, status=status.HTTP_400_BAD_REQUEST)
+        
         is_correct = answer_option.correct
         explanation = test_question.question.explanation
+        
         with transaction.atomic():
-            ParticipationResponse.objects.create(test_participation=participation, test_question=test_question, answer_option=answer_option)
+            ParticipationResponse.objects.create(
+                test_participation=participation,
+                test_question=test_question,
+                answer_option=answer_option
+            )
             if is_correct:
                 participation.score += test_question.question.score
                 participation.save()
+        
         response_data = {"is_correct": is_correct, "explanation": explanation}
         total_questions = TestQuestion.objects.filter(test=participation.test).count()
+        
         if test_question.question_number == total_questions:
             responses = ParticipationResponse.objects.filter(test_participation=participation)
             correct_count = sum(1 for resp in responses if resp.answer_option.correct)
-            final_result = {"total_score": participation.score, "correct_answers": correct_count, "total_questions": total_questions}
+            final_result = {
+                "total_score": participation.score,
+                "correct_answers": correct_count,
+                "total_questions": total_questions
+            }
             response_data["final_result"] = final_result
+        
         response_serializer = AnswerSubmissionResponseSerializer(response_data)
         return Response(response_serializer.data, status=status.HTTP_200_OK)
+    
 
 @extend_schema(
     summary="Creación de categoría",
@@ -262,7 +288,7 @@ class QuestionListView(ListAPIView):
 @extend_schema(
     summary="Resultado de test",
     description="Devuelve el resultado final del test a partir de la participación del usuario.",
-    parameters=[OpenApiParameter("participation_id", OpenApiTypes.INT, description="ID de la participación", required=True)],
+    # parameters=[OpenApiParameter("participation_id", OpenApiTypes.INT, description="ID de la participación", required=True)],
     responses={200: OpenApiTypes.OBJECT, 404: OpenApiTypes.OBJECT},
     tags=["Tests"]
 )
