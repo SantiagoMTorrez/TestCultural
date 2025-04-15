@@ -14,6 +14,15 @@ from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
 
 
+
+class Region(models.Model):
+    name = models.CharField(max_length=250)
+    description = models.CharField(max_length=250)
+
+    def __str__(self):
+        return self.name
+
+
 class UserManager(BaseUserManager):
     """Manager for users."""
 
@@ -54,6 +63,7 @@ class User(AbstractBaseUser):
 
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
+    region = models.ForeignKey(Region, on_delete=models.RESTRICT, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)  
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

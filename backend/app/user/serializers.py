@@ -9,9 +9,9 @@ from django.utils.translation import gettext as _
 from rest_framework import serializers
 
 from rest_framework.exceptions import APIException
-
 from django.contrib.auth.models import AnonymousUser
 
+from core.models import Region
 
 class NotValidRole(APIException):
     status_code = 400
@@ -19,12 +19,17 @@ class NotValidRole(APIException):
     default_code = 'role_field'
 
 
+class RegionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Region
+        fields = '__all__'
+
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the user object."""
 
     class Meta:
         model = get_user_model()
-        fields = ['pk', 'email', 'password', 'name', 'phone_number', 'is_active', 'is_staff']  # Added 'phone_number'
+        fields = ['pk', 'email', 'password', 'name', 'phone_number', 'is_active', 'is_staff', 'region'] 
         extra_kwargs = {
             'password': {'write_only': True},
         }

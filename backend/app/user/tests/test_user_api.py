@@ -9,34 +9,11 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from core.models import User
 
-from core.models import Session, Role
-
 from unittest.mock import patch
 
 CREATE_USER_URL = reverse("user:create")
 TOKEN_URL = reverse("user:token")
 ME_URL = reverse("user:me")
-
-
-def create_user(**params):
-    """Create and return a new user."""
-    return get_user_model().objects.create_user(**params)
-
-def create_admin(**params):
-    """Create and return a new user."""
-    return get_user_model().objects.create_admin(**params)
-
-def create_parent(**params):
-    """Create and return a new user."""
-    return get_user_model().objects.create_parent(**params)
-
-def create_teacher(**params):
-    """Create and return a new user."""
-    return get_user_model().objects.create_teacher(**params)
-
-def create_student(**params):
-    """Create and return a new user."""
-    return get_user_model().objects.create_student(**params)
 
 
 class PublicAdminAPITests(TestCase):

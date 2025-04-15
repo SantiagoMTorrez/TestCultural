@@ -33,7 +33,7 @@ urlpatterns = [
         name='api-docs'),
     path('health_check/', HealthCheck.as_view(), name='health_check'),
     path('user/', include('user.urls')),
-    path('post/', include('post.urls')),
+    path('trivia/', include('trivia.urls')),
 ]
 
 if settings.DEBUG:

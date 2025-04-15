@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework import pagination
 from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
 
 from django.contrib.auth.models import AnonymousUser
 from core.permissions import IsLogged
@@ -16,11 +17,14 @@ from core.utils import LogInThrottle
 from django.contrib.auth import get_user_model, logout, login
 
 from user.serializers import (
+    RegionSerializer,
     AuthTokenSerializer,
     UserSerializer,
     ManageUserSerializer,
     HealthCheckSerializer,
 )
+
+from core.models import Region
 
 from user.filters import UserFilter
 
@@ -156,6 +160,13 @@ class CreateUserView(generics.CreateAPIView):
         if not email_param:
             raise MissingQueryParameterException(detail="Ingrese el parámetro de email")
         return get_object_or_404(get_user_model(), email = email_param)
+
+
+class RegionView(ModelViewSet):
+    queryset = Region.objects.all()
+    serializer_class = RegionSerializer
+    authentication_classes = []
+    permission_classes = []
 
 
 class HealthCheck(views.APIView):

@@ -3,15 +3,6 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-
-class Region(models.Model):
-    name = models.CharField(max_length=250)
-    description = models.CharField(max_length=250)
-
-    def __str__(self):
-        return self.name
-
-
 class Category(models.Model):
     name = models.CharField(max_length=250)
     description = models.CharField(max_length=250)
@@ -32,6 +23,7 @@ class Test(models.Model):
     title = models.CharField(max_length=250)
     created_at = models.DateTimeField(auto_now_add=True)
     multiplayer = models.BooleanField(default=False)
+    time_limit_minutes = models.IntegerField(default=60)
 
     def __str__(self):
         return self.title
@@ -39,11 +31,13 @@ class Test(models.Model):
 
 class Question(models.Model):
     text = models.TextField()
+    created_by = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
     difficulty = models.IntegerField()
     explanation = models.TextField(blank=True)
     score = models.IntegerField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     question_type = models.ForeignKey(QuestionType, on_delete=models.CASCADE)
+    # answer_options = models.
 
     def __str__(self):
         return self.text
@@ -51,7 +45,7 @@ class Question(models.Model):
 
 class AnswerOption(models.Model):
     text = models.TextField()
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answer_options')
     correct = models.BooleanField(default=False)
 
     def __str__(self):
