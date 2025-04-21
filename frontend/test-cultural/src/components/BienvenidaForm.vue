@@ -35,7 +35,8 @@ export default {
     });
 
     const irAlMenu = () => {
-      router.push('/iniciomenu');
+      console.log('Redirigiendo a /mainform');  // Confirmación en consola de la redirección
+      router.push('/mainform');  // Redirigir a /mainform
     };
 
     return { irAlMenu, dataname };

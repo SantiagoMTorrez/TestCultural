@@ -1,9 +1,9 @@
-// src/router.js
 import { createRouter, createWebHistory } from 'vue-router';
 import FormularioLogin from '@/components/LoginForm.vue';
 import RegisterForm from './components/RegisterForm.vue';
 import BienvenidaForm from '@/components/BienvenidaForm.vue';
-import Iniciomenu from '@/components/Iniciomenu.vue';
+import MainForm from '@/components/MainForm.vue'; // Importa el nuevo MainForm
+import QuizStart from '@/components/QuizStart.vue';
 
 const routes = [
   {
@@ -17,16 +17,20 @@ const routes = [
     component: BienvenidaForm
   },
   {
-    path: '/iniciomenu',
-    name: 'InicioMenu',
-    component: Iniciomenu
+    path: '/mainform', // Cambia la ruta a /mainform
+    name: 'MainForm',  // Ruta para el formulario principal
+    component: MainForm
   },
   {
     path: '/registerform',
     name: 'Register',
     component: RegisterForm
   },
-  
+  {
+    path: '/quiz',
+    name: 'QuizStart',
+    component: QuizStart
+  }
 ];
 
 const router = createRouter({
