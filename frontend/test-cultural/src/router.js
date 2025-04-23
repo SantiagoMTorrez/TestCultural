@@ -4,6 +4,7 @@ import RegisterForm from './components/RegisterForm.vue';
 import BienvenidaForm from '@/components/BienvenidaForm.vue';
 import MainForm from '@/components/MainForm.vue'; // Importa el nuevo MainForm
 import QuizStart from '@/components/QuizStart.vue';
+import StaffMain from '@/components/StaffMain.vue';
 
 const routes = [
   {
@@ -30,6 +31,11 @@ const routes = [
     path: '/quiz',
     name: 'QuizStart',
     component: QuizStart
+  },
+  {
+    path: '/staffmain',
+    name: 'StaffMain',
+    component: StaffMain
   }
 ];
 

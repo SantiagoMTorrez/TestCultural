@@ -2,7 +2,7 @@
   <div class="container">
     <div class="card">
       <h2>TEST CULTURAL DEL<br />BICENTENARIO DE BOLIVIA</h2>
-
+      
       <label for="email"><em>E-mail:</em></label>
       <input v-model="email" type="email" id="email" required />
 
@@ -49,6 +49,7 @@ export default {
           token.value = data.token;
           localStorage.setItem('token', token.value);
           localStorage.setItem('dataname', data.name); // guarda el nombre del usuario
+          localStorage.setItem('staff', data.is_staff); // guarda el email del usuario
           router.push('/bienvenida');
         } else {
           const errorData = await response.json();
