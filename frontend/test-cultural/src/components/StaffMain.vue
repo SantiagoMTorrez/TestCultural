@@ -50,6 +50,7 @@
   
       const nuevaCategoria = () => {
         console.log('Nueva categoría');
+        router.push('/nuevaCategoria');
         // Aquí iría la lógica para crear nueva categoría
       };
   

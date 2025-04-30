@@ -35,8 +35,15 @@ export default {
     });
 
     const irAlMenu = () => {
-      console.log('Redirigiendo a /mainform');  // Confirmación en consola de la redirección
-      router.push('/mainform');  // Redirigir a /mainform
+      console.log(localStorage.getItem('staff'));
+      if (localStorage.getItem('staff')=='false') {
+        console.log('Redirigiendo a /mainform');  // Confirmación en consola de la redirección  
+        router.push('/mainform');  // Redirigir a /mainform
+      } else {
+        console.log('Redirigiendo a /staff');  // Confirmación en consola de la redirección  
+        router.push('/staffmain');  // Redirigir a /staff
+      }
+      
     };
 
     return { irAlMenu, dataname };

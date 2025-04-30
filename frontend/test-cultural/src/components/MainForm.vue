@@ -37,7 +37,9 @@
   
         <!-- Botón para iniciar -->
         <button @click="startQuiz" class="start-btn">¡VAMOS!</button>
+        
       </div>
+      <button @click="logout" class="logout-btn">CERRAR SESIÓN</button>
     </div>
   </template>
   
@@ -78,8 +80,13 @@
         console.log(`Iniciando el cuestionario con categoría: ${selectedCategory.value} y dificultad: ${selectedDifficulty.value}`);
         router.push('/quiz');
       };
+
+      const logout = () => {
+        localStorage.removeItem('token');
+        router.push('/');
+      };
   
-      return { userName, categories, selectedCategory, selectedDifficulty, selectCategory, selectMode, startQuiz };
+      return { userName, categories, selectedCategory, selectedDifficulty, selectCategory, selectMode, startQuiz, logout };
     }
   };
   </script>
@@ -93,6 +100,7 @@
   
   .main-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -220,6 +228,32 @@
   
   .start-btn:hover {
     background-color: #52003B; /* Color oscuro al pasar el mouse */
+  }
+
+  .logout-btn {
+    padding: 12px 25px;
+    background-color: #ff3333; /* Rojo cálido para Cerrar Sesión */
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Jeju Hallasan', cursive;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background-color 0.3s;
+    margin-top: 20px; /* Espacio entre el botón de inicio y el de cerrar sesión */
+  }
+
+  .logout-btn-left {
+    position: absolute;
+    bottom: 20px; /* Alinea al borde inferior */
+    left: 20px;   /* Alinea al borde izquierdo */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logout-btn:hover {
+    background-color: #7c716d; /* Rojo más oscuro al pasar el mouse */
   }
   </style>
   

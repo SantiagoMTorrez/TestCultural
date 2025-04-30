@@ -6,6 +6,7 @@ import MainForm from '@/components/MainForm.vue'; // Importa el nuevo MainForm
 import QuizStart from '@/components/QuizStart.vue';
 import StaffMain from '@/components/StaffMain.vue';
 import NuevaPreguntas from '@/components/nuevaPreguntas.vue'; 
+import NuevaCategoria from '@/components/nuevaCategoria.vue'; 
 
 const routes = [
   {
@@ -42,6 +43,11 @@ const routes = [
     path: '/nuevaPreguntas',
     name: 'NuevaPreguntas',
     component: NuevaPreguntas
+  },
+  {
+    path: '/nuevaCategoria',
+    name: 'NuevaCategoria',
+    component: NuevaCategoria
   }
 ];
 
