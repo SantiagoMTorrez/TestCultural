@@ -21,8 +21,8 @@
   
         <!-- Selección de categoría -->
         <div class="category-selection">
-          <button v-for="category in categories" :key="category" class="category-btn" @click="selectCategory(category)">
-            {{ category }}
+          <button v-for="category in categories" :key="category.id" class="category-btn" @click="selectCategory(category)">
+            {{ category.name }}
           </button>
         </div>
   
@@ -52,11 +52,12 @@
     setup() {
       const router = useRouter();
       const userName = ref('');
-      const categories = ['Historia', 'Arte', 'Literatura', 'Gastronomía', 'Tradiciones'];
+      const categories = ref([]);
       const selectedCategory = ref('Arte');
       const selectedDifficulty = ref('Fácil');
+
   
-      onMounted(() => {
+      onMounted( async() => {
         const token = localStorage.getItem('token');
         if (!token) {
           alert('Debes iniciar sesión primero.');
@@ -66,6 +67,28 @@
   
         const name = localStorage.getItem('dataname');
         userName.value = name || 'Usuario';
+
+        //const staff = localStorage.getItem('staff');  
+        
+        try {
+        const response = await fetch("http://localhost:8080/trivia/categories/", {
+          headers: { 
+            "accept": "application/json", 
+            'Authorization': `Token ${localStorage.getItem('token')}` 
+          },
+          method: "GET",
+        });
+
+        if (response.ok) {
+          categories.value = await response.json();
+        } else {
+          console.error("Error al obtener categorías");
+        }
+        } catch (error) {
+          console.error("Error de conexión:", error);
+        }
+        
+
       });
   
       const selectCategory = (category) => {
@@ -178,13 +201,19 @@
   
   .category-selection {
     display: flex;
+    flex-wrap: nowrap;
+    /* padding: auto; */
     justify-content: space-around;
     margin-top: 50px;  /* Mayor espacio entre los botones de modo y el título */
     margin-bottom: 20px;
+    width: 100%;
+    overflow-x: auto;  
   }
   
   .category-btn {
     padding: 12px 20px;
+    padding: auto;
+    margin: 5px;
     background-color: #008CBA; /* Azul para las categorías */
     color: white;
     border: none;

@@ -1,9 +1,19 @@
 <template>
   <div class="container">
     <div class="card">
-      <h2>Ingrese<br />BICENTENARIO DE BOLIVIA</h2>
+      <h2> <br>INGRESE UNA NUEVA PREGUNTA <br></h2>
       
       <form @submit.prevent="registrar">
+
+        <div class="form-group">
+          <label for="categoria">Elija una categoría:</label>
+          <select id="categoria" v-model="selectedCategory" required>
+            <option v-for="category in categories" :key="category.id" :value="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+
         <div class="form-group">
           <label for="pregunta">Ingrese una pregunta:</label>
           <input type="text" id="pregunta" v-model="pregunta" required />
@@ -17,15 +27,6 @@
         <div class="form-group">
           <label for="score">Ingrese el valor:</label>
           <input type="number" id="score" v-model="score" required />
-        </div>
-        
-        <div class="form-group">
-          <label for="categoria">Elija una categoría:</label>
-          <select id="categoria" v-model="selectedCategory" required>
-            <option v-for="category in categories" :key="category.id" :value="category.id">
-              {{ category.name }}
-            </option>
-          </select>
         </div>
 
         <div class="form-group">
@@ -59,6 +60,7 @@
         </div>
 
         <button type="submit" class="submit-btn">Registrar</button>
+        <button type="submit" class="salir-btn" @click="salir">Salir</button>
       </form>
     </div>
   </div>
@@ -71,8 +73,15 @@ import { useRouter } from 'vue-router';
 export default {
   name: "NuevaPreguntas",
   setup() {
-    const router = useRouter();
+
     
+    const router = useRouter();
+   
+    const salir = () => {
+      console.log('Saliendo...');
+      router.push('/staffMain');
+    };
+
     // Datos del formulario
     const pregunta = ref('');
     const explicacion = ref('');
@@ -156,15 +165,15 @@ export default {
         });
 
         if (response.ok) {
-          alert("Pregunta registrada con éxito.");
+          alert("Pregunta registrada correctamente");
           router.push('/staffMain');
         } else {
           const errorData = await response.json();
-          alert(errorData.message || "Error al registrar la pregunta.");
+          alert(errorData.message || "Error al registrar la pregunta");
         }
       } catch (error) {
         console.error("Error:", error);
-        alert("No se pudo conectar al servidor.");
+        alert("No se pudo conectar al servidor");
       }
     };
     
@@ -179,27 +188,36 @@ export default {
       respuesta2,
       respuesta3,
       categories,
-      registrar
+      registrar,
+      salir
     };
   }
 }
 </script>
 
 <style scoped>
+
+@import url('https://fonts.googleapis.com/css2?family=Jeju+Hallasan&display=swap');
+
+* {
+  font-family: 'Jeju Hallasan', cursive;
+}
+
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20px;
+  background-image: url('@/assets/patrones.png');
+
+  padding: 50px;
 }
 
 .card {
-  background: white;
-  border-radius: 10px;
+  background: rgb(255, 255, 255);
+  border-radius: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 30px;
+  padding: 50px;
   width: 100%;
   max-width: 600px;
 }
@@ -253,7 +271,24 @@ input:focus, select:focus {
 .submit-btn:hover {
   background-color: #27ae60;
 }
-
+.salir-btn {
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    padding: 12px 25px;
+    background-color: #ff3333;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+  }
+  
+  .salir-btn:hover {
+    background-color: #7c716d;
+  }
 @media (max-width: 768px) {
   .card {
     padding: 20px;

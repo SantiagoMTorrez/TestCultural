@@ -15,6 +15,7 @@
           </div>
   
           <button type="submit" class="submit-btn">Guardar Categoría</button>
+          <button type="submit" class="salir-btn" @click="salir">Salir</button>
         </form>
       </div>
     </div>
@@ -30,7 +31,10 @@
       const nombre = ref('');
       const descripcion = ref('');
       const router = useRouter();
-  
+      const salir = () => {
+        console.log('Saliendo...');
+        router.push('/staffMain');
+      };
       const crearCategoria = async () => {
         try {
           const token = localStorage.getItem('token');
@@ -62,20 +66,26 @@
       return {
         nombre,
         descripcion,
-        crearCategoria
+        crearCategoria,
+        salir
       };
     }
   };
   </script>
   
   <style scoped>
+  @import url('https://fonts.googleapis.com/css2?family=Jeju+Hallasan&display=swap');
+
+* {
+  font-family: 'Jeju Hallasan', cursive;
+}
   .container {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 80vh;
+    min-height: 93vh;
     padding: 20px;
-    background-color: #f5f5f5;
+    background-image: url('@/assets/patrones.png');
   }
   
   .card {
@@ -125,5 +135,24 @@
   .submit-btn:hover {
     background-color: #2980b9;
   }
+  .salir-btn {
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    padding: 12px 25px;
+    background-color: #ff3333;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+  }
+  
+  .salir-btn:hover {
+    background-color: #7c716d;
+  }
+
   </style>
   
