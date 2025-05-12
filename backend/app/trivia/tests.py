@@ -204,3 +204,82 @@ class QuestionRetrieveAndAnswerTests(BaseAPITest):
         self.assertEqual(response_first.status_code, status.HTTP_200_OK)
         response_duplicate = self.client_user.post(url_answer, answer_data, format="json")
         self.assertEqual(response_duplicate.status_code, status.HTTP_400_BAD_REQUEST)
+
+class CategoryDeletionTests(BaseAPITest):
+    def test_admin_puede_eliminar_categoria(self):
+        url = f'/trivia/categories/{self.category.id}/'
+        resp = self.client_admin.delete(url)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Category.objects.filter(id=self.category.id).exists())
+
+    def test_usuario_normal_no_puede_eliminar_categoria(self):
+        url = f'/trivia/categories/{self.category.id}/'
+        resp = self.client_user.delete(url)
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Category.objects.filter(id=self.category.id).exists())
+
+class QuestionTypeDeletionTests(BaseAPITest):
+    def setUp(self):
+        super().setUp()
+        self.other_qtype = QuestionType.objects.create(
+            name='TrueFalse', description='True or False'
+        )
+
+    def test_admin_puede_eliminar_tipo_pregunta(self):
+        url = f'/trivia/question-types/{self.other_qtype.id}/'
+        resp = self.client_admin.delete(url)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(QuestionType.objects.filter(id=self.other_qtype.id).exists())
+
+    def test_usuario_normal_no_puede_eliminar_tipo_pregunta(self):
+        url = f'/trivia/question-types/{self.other_qtype.id}/'
+        resp = self.client_user.delete(url)
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(QuestionType.objects.filter(id=self.other_qtype.id).exists())
+
+class QuestionFilterTests(BaseAPITest):
+    def test_filtrar_por_categoria(self):
+        url = f'/trivia/questions/?category={self.category.id}'
+        resp = self.client_user.get(url, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        for item in resp.data:
+            self.assertEqual(item['category'], self.category.id)
+
+    def test_filtrar_por_tipo(self):
+        url = f'/trivia/questions/?question_type={self.qtype.id}'
+        resp = self.client_user.get(url, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        for item in resp.data:
+            self.assertEqual(item['question_type'], self.qtype.id)
+
+    def test_filtrar_por_difficulty_min(self):
+        url = '/trivia/questions/?difficulty_min=2'
+        resp = self.client_user.get(url, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        for item in resp.data:
+            self.assertGreaterEqual(item['difficulty'], 2)
+
+    def test_filtrar_por_difficulty_max(self):
+        url = '/trivia/questions/?difficulty_max=2'
+        resp = self.client_user.get(url, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        for item in resp.data:
+            self.assertLessEqual(item['difficulty'], 2)
+
+    def test_filtrar_por_rango_completo(self):
+        url = '/trivia/questions/?difficulty_min=1&difficulty_max=2'
+        resp = self.client_user.get(url, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        for item in resp.data:
+            self.assertTrue(1 <= item['difficulty'] <= 2)
+
+    def test_filtrar_combinado(self):
+        url = (
+            f'/trivia/questions/?category={self.category.id}'
+            f'&question_type={self.qtype.id}'
+            '&difficulty_min=2'
+        )
+        resp = self.client_user.get(url, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]['id'], self.q2.id)

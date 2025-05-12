@@ -16,7 +16,7 @@
             <td>{{ category.name }}</td>
             <td>{{ category.description }}</td>
             <td>
-              <button class="eliminar-btn" @click="eliminarCategoria(category.id)">Eliminar</button>
+              <button class="eliminar-btn" @click="confirmarEliminacion(category)">Eliminar</button>
             </td>
           </tr>
         </tbody>
@@ -36,9 +36,14 @@ export default {
   setup() {
     const router = useRouter();
     const categories = ref([]);
+    const isLoading = ref(false);
 
     // Obtener categorías al montar el componente
     onMounted(async () => {
+      await cargarCategorias();
+    });
+
+    const cargarCategorias = async () => {
       try {
         const response = await fetch("http://localhost:8080/trivia/categories/", {
           headers: { 
@@ -56,22 +61,128 @@ export default {
       } catch (error) {
         console.error("Error de conexión:", error);
       }
-    });
+    };
 
-    const eliminarCategoria = (id) => {
-      localStorage.setItem('categoriaId', id);
-      // Aquí podrías agregar lógica para eliminar la categoría si es necesario
-      console.log('ID de categoría a eliminar:', id);
+    const confirmarEliminacion = (category) => {
+      if (confirm(`¿Estás seguro que deseas eliminar la categoría "${category.name}" y todas sus preguntas?`)) {
+        eliminarCategoriaCompleta(category.id);
+      }
+    };
+
+    const obtenerPreguntasDeCategoria = async (categoryId) => {
+      try {
+        const response = await fetch(`http://localhost:8080/trivia/questions/?category=${categoryId}`, {
+          headers: { 
+            "accept": "application/json", 
+            'Authorization': `Token ${localStorage.getItem('token')}` 
+          },
+          method: "GET",
+        });
+
+        if (response.ok) {
+          return await response.json();
+        } else {
+          console.error("Error al obtener preguntas de la categoría");
+          return [];
+        }
+      } catch (error) {
+        console.error("Error de conexión:", error);
+        return [];
+      }
+    };
+
+    const eliminarPregunta = async (id) => {
+      try {
+        const response = await fetch(`http://localhost:8080/trivia/questions/${id}/delete/`, {
+          headers: { 
+            "accept": "application/json", 
+            'Authorization': `Token ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error al eliminar pregunta:", errorData);
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error("Error:", error);
+        return false;
+      }
+    };
+
+    const eliminarCategoria = async (id) => {
+      try {
+        const response = await fetch(`http://localhost:8080/trivia/categories/${id}/`, {
+          headers: { 
+            "accept": "application/json", 
+            'Authorization': `Token ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          return true;
+        } else {
+          const errorData = await response.json();
+          console.error("Error al eliminar categoría:", errorData);
+          return false;
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        return false;
+      }
+    };
+
+    const eliminarCategoriaCompleta = async (categoryId) => {
+      isLoading.value = true;
+      
+      try {
+        // 1. Obtener todas las preguntas de esta categoría
+        const preguntas = await obtenerPreguntasDeCategoria(categoryId);
+        
+        // 2. Eliminar todas las preguntas
+        if (preguntas.length > 0) {
+          const resultados = await Promise.all(
+            preguntas.map(pregunta => eliminarPregunta(pregunta.id))
+          );
+          
+          const errores = resultados.filter(exito => !exito);
+          if (errores.length > 0) {
+            alert(`No se pudieron eliminar ${errores.length} preguntas. La categoría no se eliminará.`);
+            return;
+          }
+        }
+        
+        // 3. Eliminar la categoría
+        const categoriaEliminada = await eliminarCategoria(categoryId);
+        
+        if (categoriaEliminada) {
+          alert('Categoría y todas sus preguntas eliminadas correctamente');
+          await cargarCategorias(); // Recargar la lista
+        } else {
+          alert('Error al eliminar la categoría');
+        }
+      } catch (error) {
+        console.error("Error en el proceso de eliminación:", error);
+        alert('Ocurrió un error durante el proceso de eliminación');
+      } finally {
+        isLoading.value = false;
+      }
     };
 
     const salir = () => {
-      console.log('Saliendo...');
       router.push('/staffMain');
     };
     
     return {
       categories,
-      eliminarCategoria,
+      isLoading,
+      confirmarEliminacion,
       salir
     };
   }
@@ -144,6 +255,11 @@ h2 {
 
 .eliminar-btn:hover {
   background-color: #cc0000;
+}
+
+.eliminar-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
 .salir-btn {

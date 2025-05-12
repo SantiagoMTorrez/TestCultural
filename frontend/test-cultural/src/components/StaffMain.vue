@@ -17,15 +17,16 @@
           <button class="action-btn new-category" @click="nuevaCategoria">
             Nueva Categoría
           </button>
-          <button class="action-btn new-question" @click="nuevaPregunta">
+          <button class="action-btn new-question" @click="categorias">
+            Categorias
+          </button>
+          <button class="action-btn new-category" @click="nuevaPregunta">
             Nueva Pregunta
           </button>
           <button class="action-btn new-question" @click="preguntas">
             Preguntas
           </button>
-          <button class="action-btn new-question" @click="categorias">
-            Categorias
-          </button>
+          
         </div>
       </div>
       <button @click="logout" class="logout-btn">CERRAR SESIÓN</button>

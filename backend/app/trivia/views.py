@@ -3,7 +3,7 @@ from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
@@ -161,37 +161,82 @@ class AnswerSubmissionView(APIView):
         return Response(response_serializer.data, status=status.HTTP_200_OK)
     
 
-@extend_schema(
-    summary="Creación de categoría",
-    description="Crea una nueva categoría. Sólo el administrador puede utilizar este endpoint.",
-    request=CategorySerializer,
-    responses={201: CategorySerializer, 400: OpenApiTypes.OBJECT},
-    tags=["Categories"],
-    examples=[OpenApiExample('Ejemplo de creación de categoría', value={'name': 'Matemáticas', 'description': 'Preguntas de matemáticas'}, request_only=True)]
-)
-class CategoryCreateView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAdminUser]
-    def post(self, request):
-        serializer = CategorySerializer(data=request.data)
-        if serializer.is_valid():
-            category = serializer.save()
-            return Response(CategorySerializer(category).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@extend_schema(
-    summary="Listar categorías",
-    description="Lista todas las categorías existentes.",
-    responses={200: CategorySerializer(many=True)},
-    tags=["Categories"]
-)
-class CategoryListView(ListAPIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = []
+class CategoryViewSet(ModelViewSet):
+    """
+    ViewSet para gestionar categorías:
+    - list:   Listado público de todas las categorías.
+    - retrieve: Detalle de una categoría (opcional).
+    - create:  Sólo administradores pueden crear.
+    - update:  Sólo administradores pueden modificar.
+    - destroy: Sólo administradores pueden eliminar.
+    """
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    def get_queryset(self):
-        return Category.objects.all()
+    authentication_classes = [TokenAuthentication]
 
+    def get_permissions(self):
+        # Sólo administradores pueden create, update, destroy; cualquier usuario puede listar/recuperar.
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAdminUser()]
+        return [AllowAny()]
+
+    @extend_schema(
+        summary="Listar categorías",
+        description="Recupera todas las categorías existentes.",
+        responses={200: CategorySerializer(many=True)},
+        tags=["Categories"]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Crear categoría",
+        description="Crea una nueva categoría. Sólo el administrador puede acceder a este endpoint.",
+        request=CategorySerializer,
+        responses={
+            201: CategorySerializer,
+            400: OpenApiTypes.OBJECT
+        },
+        tags=["Categories"],
+        examples=[
+            OpenApiExample(
+                'Ejemplo de creación',
+                value={'name': 'Matemáticas', 'description': 'Preguntas de matemáticas'},
+                request_only=True
+            )
+        ]
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Detalle de categoría",
+        description="Recupera la información de una categoría por su ID.",
+        responses={200: CategorySerializer, 404: OpenApiTypes.OBJECT},
+        tags=["Categories"]
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Actualizar categoría",
+        description="Permite al administrador modificar una categoría existente.",
+        request=CategorySerializer,
+        responses={200: CategorySerializer, 400: OpenApiTypes.OBJECT, 403: OpenApiTypes.OBJECT},
+        tags=["Categories"]
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Eliminar categoría",
+        description="Permite al administrador eliminar una categoría.",
+        responses={204: OpenApiTypes.NONE, 403: OpenApiTypes.OBJECT, 404: OpenApiTypes.OBJECT},
+        tags=["Categories"],
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
 @extend_schema(
     summary="Creación de pregunta",
     description="Crea una nueva pregunta con opciones de respuesta. Se espera un objeto JSON con los datos de la pregunta y una lista de opciones (texto y bandera 'correct'). Se asume que el usuario es administrador.",
@@ -261,29 +306,114 @@ class QuestionEditView(APIView):
             return Response(QuestionCreateSerializer(updated_question).data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
 @extend_schema(
-    summary="Listar preguntas",
-    description="Lista todas las preguntas disponibles, permitiendo filtrar por categoría y/o tipo de pregunta.",
+    summary="Listar preguntas con filtros avanzados",
+    description=(
+        "Recupera todas las preguntas, permitiendo filtrar opcionalmente por:\n"
+        "- `category`: ID de la categoría (exacto).\n"
+        "- `question_type`: ID del tipo de pregunta (exacto).\n"
+        "- `difficulty_min`: dificultad mínima (inclusive).\n"
+        "- `difficulty_max`: dificultad máxima (inclusive).\n\n"
+        "Si se envían ambos límites (`difficulty_min` y `difficulty_max`), "
+        "se devuelven solo las preguntas cuya dificultad esté entre ambos valores.\n"
+        "Si se envía solo uno de los límites, se aplica el filtro correspondiente."
+    ),
     parameters=[
-        OpenApiParameter("category", OpenApiTypes.INT, description="ID de la categoría", required=False),
-        OpenApiParameter("question_type", OpenApiTypes.INT, description="ID del tipo de pregunta", required=False)
+        OpenApiParameter(
+            name="category",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filtrar por ID de categoría"
+        ),
+        OpenApiParameter(
+            name="question_type",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filtrar por ID de tipo de pregunta"
+        ),
+        OpenApiParameter(
+            name="difficulty_min",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Dificultad mínima (>=)"
+        ),
+        OpenApiParameter(
+            name="difficulty_max",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Dificultad máxima (<=)"
+        ),
     ],
     responses={200: QuestionStatementSerializer(many=True)},
-    tags=["Questions"]
+    tags=["Questions"],
 )
 class QuestionListView(ListAPIView):
+    """
+    Lista todas las preguntas y permite filtrar por:
+    - category:       ID de categoría
+    - question_type:  ID de tipo de pregunta
+    - difficulty_min: Límite inferior de dificultad (>=)
+    - difficulty_max: Límite superior de dificultad (<=)
+    """
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    serializer_class = QuestionStatementSerializer
+    serializer_class = QuestionCreateSerializer
+
     def get_queryset(self):
         queryset = Question.objects.all()
-        category = self.request.query_params.get('category')
-        question_type = self.request.query_params.get('question_type')
+        params = self.request.query_params
+
+        category      = params.get('category')
+        question_type = params.get('question_type')
+        lower         = params.get('difficulty_min')
+        upper         = params.get('difficulty_max')
+
         if category:
             queryset = queryset.filter(category_id=category)
         if question_type:
             queryset = queryset.filter(question_type_id=question_type)
+
+        if lower is not None and upper is not None:
+            queryset = queryset.filter(difficulty__gte=lower, difficulty__lte=upper)
+        elif lower is not None:
+            queryset = queryset.filter(difficulty__gte=lower)
+        elif upper is not None:
+            queryset = queryset.filter(difficulty__lte=upper)
+
         return queryset
+
+@extend_schema(
+    summary="Eliminar pregunta",
+    description="Permite eliminar una pregunta creada por el usuario. Solo el creador (campo created_by) puede eliminar la pregunta.",
+    request=QuestionCreateSerializer,
+    tags=["Questions"],
+)
+class QuestionDeleteView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAdminUser]
+    serializer_class = QuestionCreateSerializer
+    def delete(self, request, pk):
+        try:
+            question = Question.objects.get(id=pk)
+        except Question.DoesNotExist:
+            return Response({"error": "Pregunta no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+        if question.created_by != request.user:
+            return Response({"error": "No tienes permiso para eliminar esta pregunta."}, status=status.HTTP_403_FORBIDDEN)
+        
+        if question.test_question.exists():
+            return Response({"error": "Esta pregunta está vinculada a un test y no se puede borrar"}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            question.delete()
+            return Response(status=status.HTTP_202_ACCEPTED)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @extend_schema(
     summary="Resultado de test",

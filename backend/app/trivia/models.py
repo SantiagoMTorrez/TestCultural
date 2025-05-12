@@ -54,7 +54,7 @@ class AnswerOption(models.Model):
 
 class TestQuestion(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='test_question')
     question_number = models.IntegerField()
 
     def __str__(self):

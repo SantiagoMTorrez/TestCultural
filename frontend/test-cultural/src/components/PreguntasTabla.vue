@@ -16,7 +16,7 @@
             <td>{{ question.text }}</td>
             <td>{{ getDificultadText(question.difficulty) }}</td>
             <td>
-              <button class="eliminar-btn" @click="eliminarPregunta(question.id)">Eliminar</button>
+              <button class="eliminar-btn" @click="confirmarEliminacion(question.id)">Eliminar</button>
             </td>
           </tr>
         </tbody>
@@ -49,6 +49,10 @@ export default {
 
     // Obtener preguntas al montar el componente
     onMounted(async () => {
+      await cargarPreguntas();
+    });
+
+    const cargarPreguntas = async () => {
       try {
         const response = await fetch("http://localhost:8080/trivia/questions/", {
           headers: { 
@@ -66,12 +70,36 @@ export default {
       } catch (error) {
         console.error("Error de conexión:", error);
       }
-    });
+    };
 
-    const eliminarPregunta = (id) => {
-      localStorage.setItem('preguntaId', id);
-      console.log('ID de pregunta a eliminar:', id);
-      // Aquí podrías agregar lógica para eliminar la pregunta si es necesario
+    const confirmarEliminacion = (id) => {
+      if (confirm('¿Estás seguro que deseas eliminar esta pregunta?')) {
+        eliminarPregunta(id);
+      }
+    };
+
+    const eliminarPregunta = async (id) => {
+      try {
+        const response = await fetch(`http://localhost:8080/trivia/questions/${id}/delete/`, {
+          headers: { 
+            "accept": "application/json", 
+            'Authorization': `Token ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          alert('Pregunta eliminada correctamente');
+          await cargarPreguntas(); // Recargar la lista después de eliminar
+        } else {
+          const errorData = await response.json();
+          alert(errorData.message || "Error al eliminar la pregunta");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("No se pudo conectar al servidor");
+      }
     };
 
     const salir = () => {
@@ -82,7 +110,7 @@ export default {
     return {
       questions,
       getDificultadText,
-      eliminarPregunta,
+      confirmarEliminacion,
       salir
     };
   }
