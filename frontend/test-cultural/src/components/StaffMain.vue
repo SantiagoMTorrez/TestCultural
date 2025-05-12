@@ -20,6 +20,12 @@
           <button class="action-btn new-question" @click="nuevaPregunta">
             Nueva Pregunta
           </button>
+          <button class="action-btn new-question" @click="preguntas">
+            Preguntas
+          </button>
+          <button class="action-btn new-question" @click="categorias">
+            Categorias
+          </button>
         </div>
       </div>
       <button @click="logout" class="logout-btn">CERRAR SESIÓN</button>
@@ -59,13 +65,25 @@
         router.push('/nuevaPreguntas');
         // Aquí iría la lógica para crear nueva pregunta
       };
+
+      const preguntas = () => {
+        console.log('Preguntas');
+        router.push('/preguntasTabla');
+        // Aquí iría la lógica para ver preguntas
+      };
+
+      const categorias = () => {
+        console.log('Categorias');
+        router.push('/categoriasTabla');
+        // Aquí iría la lógica para ver categorias
+      };
   
       const logout = () => {
         localStorage.removeItem('token');
         router.push('/');
       };
   
-      return { userName, nuevaCategoria, nuevaPregunta, logout };
+      return { userName, nuevaCategoria, nuevaPregunta, categorias, preguntas, logout };
     }
   };
   </script>

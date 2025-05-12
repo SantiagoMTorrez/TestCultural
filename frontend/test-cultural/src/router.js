@@ -7,6 +7,8 @@ import QuizStart from '@/components/QuizStart.vue';
 import StaffMain from '@/components/StaffMain.vue';
 import NuevaPreguntas from '@/components/nuevaPreguntas.vue'; 
 import NuevaCategoria from '@/components/nuevaCategoria.vue'; 
+import PreguntasTabla from '@/components/PreguntasTabla.vue'; // Asegúrate de que la ruta sea correcta
+import CategoriasTabla from '@/components/CategoriasTabla.vue';
 
 const routes = [
   {
@@ -48,6 +50,16 @@ const routes = [
     path: '/nuevaCategoria',
     name: 'NuevaCategoria',
     component: NuevaCategoria
+  },
+  {
+    path: '/preguntasTabla',
+    name: 'PreguntasTabla',
+    component: PreguntasTabla
+  },
+  {
+    path: '/categoriasTabla',
+    name: 'CategoriasTabla',
+    component: CategoriasTabla
   }
 ];
 
