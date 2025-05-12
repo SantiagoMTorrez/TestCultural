@@ -246,14 +246,14 @@ class CategoryViewSet(ModelViewSet):
     - destroy: Sólo administradores pueden eliminar.
     """
     queryset = Category.objects.all()
-    serializer_class = CategorySerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAdminOrReadOnly] 
+    serializer_class = CategorySerializer
     # def get_permissions(self):
     #     if self.action in ['create', 'update', 'partial_update', 'destroy']:
     #         return [IsAdminUser()]
     #     return [AllowAny()]
-
+    
     @extend_schema(
         summary="Listar categorías",
         description="Recupera todas las categorías existentes.",

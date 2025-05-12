@@ -70,7 +70,7 @@ class BaseAPITest(APITestCase):
 
 class CategoryCreationTests(BaseAPITest):
     def test_admin_can_create_category(self):
-        url = "/trivia/categories/create/"
+        url = "/trivia/categories/"
         data = {"name": "Math", "description": "Questions about math"}
         response = self.client_admin.post(url, data, format="json")
 
@@ -78,7 +78,7 @@ class CategoryCreationTests(BaseAPITest):
         self.assertEqual(response.data["name"], "Math")
 
     def test_non_admin_cannot_create_category(self):
-        url = "/trivia/categories/create/"
+        url = "/trivia/categories/"
         data = {"name": "Science", "description": "Questions about science"}
         response = self.client_user.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -149,7 +149,7 @@ class QuestionRetrieveAndAnswerTests(BaseAPITest):
 
     def test_submit_same_question_twice(self):
         url_answer = f"/trivia/tests/{self.participation_id}/question/1/answer/"
-        url_question = f"/trivia/tests/{self.participation_id}/question/1/"
+        url_question = f"/trivia/tests/{self.participation_id}/question/1/start/"
         question_response = self.client_user.get(url_question, format="json")
         option_id = question_response.data["answer_options"][0]["id"]
         answer_data = {"answer_option": option_id}
@@ -168,7 +168,7 @@ class QuestionRetrieveAndAnswerTests(BaseAPITest):
 
     def test_submit_answer_correctly_and_get_final_result(self):
         url_answer1 = f"/trivia/tests/{self.participation_id}/question/1/answer/"
-        url_question1 = f"/trivia/tests/{self.participation_id}/question/1/"
+        url_question1 = f"/trivia/tests/{self.participation_id}/question/1/start/"
         question_response = self.client_user.get(url_question1, format="json")
         correct_option_id = None
         if question_response.data["text"] == "What is 2+2?":
@@ -183,12 +183,11 @@ class QuestionRetrieveAndAnswerTests(BaseAPITest):
             correct_option_id = question_response.data["answer_options"][0]["id"]
         answer_data1 = {"answer_option": correct_option_id}
         response1 = self.client_user.post(url_answer1, answer_data1, format="json")
-        print(response1.json(), '*'*20)
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertIn("is_correct", response1.data)
         self.assertIn("explanation", response1.data)
         url_answer2 = f"/trivia/tests/{self.participation_id}/question/2/answer/"
-        url_question2 = f"/trivia/tests/{self.participation_id}/question/2/"
+        url_question2 = f"/trivia/tests/{self.participation_id}/question/2/start/"
         question_response2 = self.client_user.get(url_question2, format="json")
         correct_option_id2 = None
         if question_response2.data["text"] == "What is 2+2?":

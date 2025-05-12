@@ -137,7 +137,7 @@ class AnswerSubmissionTests(BaseAPITest):
         self.client_user.get(self.start_url2, format="json")
         correct2 = AnswerOption.objects.get(question=self.question2, correct=True)
         resp = self.client_user.post(self.answer_url2, {"answer_option": correct2.id}, format="json")
-
+        self.part.refresh_from_db()
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIn("final_result", resp.data)
         fr = resp.data["final_result"]

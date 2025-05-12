@@ -62,7 +62,7 @@ class TestQuestion(models.Model):
 
 
 class TestParticipation(models.Model):
-    score = models.IntegerField()
+    score = models.FloatField(default=0.0)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     test = models.ForeignKey(Test, on_delete=models.CASCADE)
     started_at = models.DateTimeField(auto_now_add=True)
@@ -81,11 +81,13 @@ class ParticipationResponse(models.Model):
     responded_at       = models.DateTimeField(null=True, blank=True)
     score              = models.FloatField(default=0.0)
 
-    def __str__(self):
-        return (
-            f"Participation {self.test_participation.id} "
-            f"Question {self.test_question.id} "
-            f"accessed_at={self.accessed_at:%Y-%m-%d %H:%M:%S} "
-            f"responded_at={self.responded_at:%Y-%m-%d %H:%M:%S} "
-            f"score={self.score}"
-        )
+def __str__(self):
+    accessed = self.accessed_at.strftime('%Y-%m-%d %H:%M:%S') if self.accessed_at else "None"
+    responded = self.responded_at.strftime('%Y-%m-%d %H:%M:%S') if self.responded_at else "None"
+    return (
+        f"Participation {self.test_participation.id} "
+        f"Question {self.test_question.id} "
+        f"accessed_at={accessed} "
+        f"responded_at={responded} "
+        f"score={self.score}"
+    )
