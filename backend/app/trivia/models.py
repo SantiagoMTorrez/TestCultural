@@ -71,10 +71,21 @@ class TestParticipation(models.Model):
         return f"Participation by {self.user} in {self.test.title}"
 
 
+from django.db import models
+
 class ParticipationResponse(models.Model):
     test_participation = models.ForeignKey(TestParticipation, on_delete=models.CASCADE)
-    test_question = models.ForeignKey(TestQuestion, on_delete=models.CASCADE)
-    answer_option = models.ForeignKey(AnswerOption, on_delete=models.CASCADE, null=True, blank=True)
+    test_question      = models.ForeignKey(TestQuestion, on_delete=models.CASCADE)
+    answer_option      = models.ForeignKey(AnswerOption, on_delete=models.CASCADE, null=True, blank=True)
+    accessed_at        = models.DateTimeField(auto_now_add=True)
+    responded_at       = models.DateTimeField(null=True, blank=True)
+    score              = models.FloatField(default=0.0)
 
     def __str__(self):
-        return f"Response for Participation {self.test_participation.id} on TestQuestion {self.test_question.id}"
+        return (
+            f"Participation {self.test_participation.id} "
+            f"Question {self.test_question.id} "
+            f"accessed_at={self.accessed_at:%Y-%m-%d %H:%M:%S} "
+            f"responded_at={self.responded_at:%Y-%m-%d %H:%M:%S} "
+            f"score={self.score}"
+        )

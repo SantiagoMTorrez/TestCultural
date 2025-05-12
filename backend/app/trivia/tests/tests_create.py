@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from rest_framework import status
-from .models import (
+from ..models import (
     Category, Question, AnswerOption, QuestionType, Test, TestParticipation,
     TestQuestion, ParticipationResponse
 )
@@ -147,6 +147,17 @@ class QuestionRetrieveAndAnswerTests(BaseAPITest):
         test_response = self.client_user.post(create_url, {"n": 2}, format="json")
         self.participation_id = test_response.data["participation_id"]
 
+    def test_submit_same_question_twice(self):
+        url_answer = f"/trivia/tests/{self.participation_id}/question/1/answer/"
+        url_question = f"/trivia/tests/{self.participation_id}/question/1/"
+        question_response = self.client_user.get(url_question, format="json")
+        option_id = question_response.data["answer_options"][0]["id"]
+        answer_data = {"answer_option": option_id}
+        response_first = self.client_user.post(url_answer, answer_data, format="json")
+        self.assertEqual(response_first.status_code, status.HTTP_200_OK)
+        response_duplicate = self.client_user.post(url_answer, answer_data, format="json")
+        self.assertEqual(response_duplicate.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_retrieve_question(self):
         url = f"/trivia/tests/{self.participation_id}/question/1/"
         response = self.client_user.get(url, format="json")
@@ -172,6 +183,7 @@ class QuestionRetrieveAndAnswerTests(BaseAPITest):
             correct_option_id = question_response.data["answer_options"][0]["id"]
         answer_data1 = {"answer_option": correct_option_id}
         response1 = self.client_user.post(url_answer1, answer_data1, format="json")
+        print(response1.json(), '*'*20)
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertIn("is_correct", response1.data)
         self.assertIn("explanation", response1.data)
@@ -193,17 +205,6 @@ class QuestionRetrieveAndAnswerTests(BaseAPITest):
         response2 = self.client_user.post(url_answer2, answer_data2, format="json")
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertIn("final_result", response2.data)
-
-    def test_submit_same_question_twice(self):
-        url_answer = f"/trivia/tests/{self.participation_id}/question/1/answer/"
-        url_question = f"/trivia/tests/{self.participation_id}/question/1/"
-        question_response = self.client_user.get(url_question, format="json")
-        option_id = question_response.data["answer_options"][0]["id"]
-        answer_data = {"answer_option": option_id}
-        response_first = self.client_user.post(url_answer, answer_data, format="json")
-        self.assertEqual(response_first.status_code, status.HTTP_200_OK)
-        response_duplicate = self.client_user.post(url_answer, answer_data, format="json")
-        self.assertEqual(response_duplicate.status_code, status.HTTP_400_BAD_REQUEST)
 
 class CategoryDeletionTests(BaseAPITest):
     def test_admin_puede_eliminar_categoria(self):
@@ -238,6 +239,7 @@ class QuestionTypeDeletionTests(BaseAPITest):
         self.assertTrue(QuestionType.objects.filter(id=self.other_qtype.id).exists())
 
 class QuestionFilterTests(BaseAPITest):
+
     def test_filtrar_por_categoria(self):
         url = f'/trivia/questions/?category={self.category.id}'
         resp = self.client_user.get(url, format='json')
@@ -282,4 +284,4 @@ class QuestionFilterTests(BaseAPITest):
         resp = self.client_user.get(url, format='json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(resp.data), 1)
-        self.assertEqual(resp.data[0]['id'], self.q2.id)
+        self.assertEqual(resp.data[0]['id'], self.question2.id)

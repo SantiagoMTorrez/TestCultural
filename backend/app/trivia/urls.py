@@ -9,7 +9,8 @@ from .views import (
     QuestionListView,
     QuestionDeleteView,
     TestResultView,
-    QuestionTypeView
+    QuestionTypeView,
+    QuestionRetrieveAndAccessView,
 )
 from rest_framework.routers import DefaultRouter
 
@@ -20,6 +21,7 @@ router.register(r'question-types', QuestionTypeView, basename='question-type')
 urlpatterns = [
     path('tests/create/', TestCreationView.as_view(), name='test-create'),
     path('tests/<int:participation_id>/question/<int:question_number>/', QuestionRetrieveView.as_view(), name='question-retrieve'),
+    path('tests/<int:participation_id>/question/<int:question_number>/start/', QuestionRetrieveAndAccessView.as_view(), name='question-retrieve-and-access'),
     path('tests/<int:participation_id>/question/<int:question_number>/answer/', AnswerSubmissionView.as_view(), name='answer-submission'),
     path('tests/<int:participation_id>/result/', TestResultView.as_view(), name='test-result'),
     path('questions/create/', QuestionCreationView.as_view(), name='question-create'),

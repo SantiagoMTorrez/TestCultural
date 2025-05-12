@@ -35,9 +35,10 @@ class AnswerSubmissionSerializer(serializers.Serializer):
     answer_option = serializers.IntegerField()
 
 class AnswerSubmissionResponseSerializer(serializers.Serializer):
-    is_correct = serializers.BooleanField()
-    explanation = serializers.CharField()
-    final_result = serializers.DictField(required=False)
+    is_correct    = serializers.BooleanField()
+    explanation   = serializers.CharField()
+    earned_score  = serializers.FloatField()
+    final_result  = serializers.DictField(required=False)
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:

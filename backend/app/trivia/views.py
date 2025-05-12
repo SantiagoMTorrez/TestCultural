@@ -86,12 +86,64 @@ class QuestionRetrieveView(APIView):
         return Response(question_serializer.data, status=status.HTTP_200_OK)
 
 @extend_schema(
-    summary="Envío de respuesta",
-    description="Recibe la respuesta de una pregunta, indica si es correcta y devuelve la explicación. Si es la última pregunta, incluye el resultado final del test.",
-    # parameters=[
-    #     OpenApiParameter("participation_id", OpenApiTypes.INT, description="ID de la participación", required=True),
-    #     OpenApiParameter("question_number", OpenApiTypes.INT, description="Número secuencial de la pregunta", required=True)
-    # ],
+    summary="Recuperar enunciado de pregunta y registrar acceso",
+    description=(
+        "Valida la participación, obtiene la pregunta por su número, "
+        "crea un registro en ParticipationResponse (solo con accessed_at) "
+        "y devuelve el enunciado y opciones."
+    ),
+    parameters=[
+        OpenApiParameter("participation_id", OpenApiTypes.INT, description="ID de la participación", required=True),
+        OpenApiParameter("question_number", OpenApiTypes.INT, description="Número secuencial de la pregunta", required=True),
+    ],
+    responses={200: QuestionStatementSerializer, 404: OpenApiTypes.OBJECT},
+    tags=["Tests"]
+)
+class QuestionRetrieveAndAccessView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, participation_id, question_number):
+        try:
+            participation = TestParticipation.objects.get(
+                id=participation_id,
+                user=request.user
+            )
+        except TestParticipation.DoesNotExist:
+            return Response(
+                {"error": "Participación no encontrada."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            test_question = TestQuestion.objects.get(
+                test=participation.test,
+                question_number=question_number
+            )
+        except TestQuestion.DoesNotExist:
+            return Response(
+                {"error": "Pregunta no encontrada."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        ParticipationResponse.objects.create(
+            test_participation=participation,
+            test_question=test_question
+        )
+
+        serializer = QuestionStatementSerializer(test_question.question)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+@extend_schema(
+    summary="Envío de respuesta y registro de puntuación",
+    description=(
+        "Actualiza ParticipationResponse con la opción, el tiempo y la puntuación dinámica, "
+        "actualiza TestParticipation.score y devuelve el resultado."
+    ),
+    parameters=[
+        OpenApiParameter("participation_id", OpenApiTypes.INT, description="ID de la participación", required=True),
+        OpenApiParameter("question_number", OpenApiTypes.INT, description="Número de la pregunta", required=True),
+    ],
     request=AnswerSubmissionSerializer,
     responses={200: AnswerSubmissionResponseSerializer, 400: OpenApiTypes.OBJECT, 404: OpenApiTypes.OBJECT},
     tags=["Tests"],
@@ -107,59 +159,82 @@ class AnswerSubmissionView(APIView):
         except TestParticipation.DoesNotExist:
             return Response({"error": "Participación no encontrada."}, status=status.HTTP_404_NOT_FOUND)
 
-        current_time = timezone.now()
-        time_limit = participation.test.time_limit_minutes
-        end_time = participation.started_at + timezone.timedelta(minutes=time_limit)
-        if current_time > end_time:
+        now = timezone.now()
+        deadline = participation.started_at + timezone.timedelta(minutes=participation.test.time_limit_minutes)
+        if now > deadline:
             return Response({"error": "Se ha excedido el límite de tiempo del test."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             test_question = TestQuestion.objects.get(test=participation.test, question_number=question_number)
         except TestQuestion.DoesNotExist:
             return Response({"error": "Pregunta no encontrada."}, status=status.HTTP_404_NOT_FOUND)
-        
-        if ParticipationResponse.objects.filter(test_participation=participation, test_question=test_question).exists():
-            return Response({"error": "Esta pregunta ya fue contestada."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         serializer = AnswerSubmissionSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        answer_option_id = serializer.validated_data['answer_option']
+
+
         try:
-            answer_option = AnswerOption.objects.get(id=answer_option_id, question=test_question.question)
-        except AnswerOption.DoesNotExist:
-            return Response({"error": "Opción de respuesta inválida para esta pregunta."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        is_correct = answer_option.correct
-        explanation = test_question.question.explanation
-        
-        with transaction.atomic():
-            ParticipationResponse.objects.create(
-                test_participation=participation,
-                test_question=test_question,
-                answer_option=answer_option
+            answer_option = AnswerOption.objects.get(
+                id=serializer.validated_data['answer_option'],
+                question=test_question.question
             )
+        except AnswerOption.DoesNotExist:
+            return Response({"error": "Opción inválida."}, status=status.HTTP_400_BAD_REQUEST)
+
+        is_correct  = answer_option.correct
+        question_score = test_question.question.score
+
+        with transaction.atomic():
+            try:
+                resp = ParticipationResponse.objects.get(
+                    test_participation=participation,
+                    test_question=test_question,
+                    responded_at__isnull=True
+                )
+            except ParticipationResponse.DoesNotExist:
+                return Response({"error": "Acceso no registrado o ya respondido."}, status=status.HTTP_400_BAD_REQUEST)
+
+            resp.answer_option = answer_option
+            resp.responded_at  = now
+
+            total_seconds       = participation.test.time_limit_minutes * 60
+            num_questions       = TestQuestion.objects.filter(test=participation.test).count()
+            per_question_secs   = total_seconds / num_questions
+            elapsed_secs        = (resp.responded_at - resp.accessed_at).total_seconds()
+
+            if is_correct and elapsed_secs <= per_question_secs:
+                remaining = per_question_secs - elapsed_secs
+                if remaining < 1:
+                    remaining = 1
+                dyn_portion = question_score * remaining / per_question_secs
+                earned = 0.5 * question_score + dyn_portion
+            else:
+                earned = 0.0
+
+            resp.score = earned
+            resp.save(update_fields=['answer_option', 'responded_at', 'score'])
+
             if is_correct:
-                participation.score += test_question.question.score
-                participation.save()
+                participation.score += earned
+                participation.save(update_fields=['score'])
+
+        data = {
+            "is_correct": is_correct,
+            "explanation": test_question.question.explanation, 
+            "earned_score": earned,}
         
-        response_data = {"is_correct": is_correct, "explanation": explanation}
-        total_questions = TestQuestion.objects.filter(test=participation.test).count()
-        
-        if test_question.question_number == total_questions:
+        total = TestQuestion.objects.filter(test=participation.test).count()
+        if question_number == total:
             responses = ParticipationResponse.objects.filter(test_participation=participation)
-            correct_count = sum(1 for resp in responses if resp.answer_option.correct)
-            final_result = {
+            correct_count = sum(1 for r in responses if r.answer_option.correct)
+            data["final_result"] = {
                 "total_score": participation.score,
                 "correct_answers": correct_count,
-                "total_questions": total_questions
+                "total_questions": total
             }
-            response_data["final_result"] = final_result
-        
-        response_serializer = AnswerSubmissionResponseSerializer(response_data)
-        return Response(response_serializer.data, status=status.HTTP_200_OK)
-    
+
+        return Response(AnswerSubmissionResponseSerializer(data).data, status=status.HTTP_200_OK)    
 
 class CategoryViewSet(ModelViewSet):
     """
@@ -173,12 +248,11 @@ class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     authentication_classes = [TokenAuthentication]
-
-    def get_permissions(self):
-        # Sólo administradores pueden create, update, destroy; cualquier usuario puede listar/recuperar.
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsAdminUser()]
-        return [AllowAny()]
+    permission_classes = [IsAdminOrReadOnly] 
+    # def get_permissions(self):
+    #     if self.action in ['create', 'update', 'partial_update', 'destroy']:
+    #         return [IsAdminUser()]
+    #     return [AllowAny()]
 
     @extend_schema(
         summary="Listar categorías",
