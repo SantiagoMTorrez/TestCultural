@@ -38,7 +38,6 @@
         <option value="Fácil">Fácil</option>
         <option value="Medio">Medio</option>
         <option value="Difícil">Difícil</option>
-        <option value="Intenso">Intenso</option>
       </select>
 
       <!-- Botón para iniciar -->

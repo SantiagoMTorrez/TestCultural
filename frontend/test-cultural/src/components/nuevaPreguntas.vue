@@ -24,10 +24,10 @@
           <input type="text" id="explicacion" v-model="explicacion" required />
         </div>
 
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label for="score">Ingrese el valor:</label>
           <input type="number" id="score" v-model="score" required />
-        </div>
+        </div> -->
 
         <div class="form-group">
           <label for="dificultad">Elija la dificultad:</label>
@@ -35,7 +35,6 @@
             <option value="Fácil">Fácil</option>
             <option value="Medio">Medio</option>
             <option value="Difícil">Difícil</option>
-            <option value="Intenso">Intenso</option>
           </select>
         </div>
 
@@ -129,12 +128,11 @@ export default {
           case "Difícil":
             dificultadFK = 3;
             break;
-          case "Intenso":   
-            dificultadFK = 4;
-            break;
           default:
             break;
         }
+
+        let scoreValor = 10*dificultadFK;
 
        
 
@@ -151,7 +149,7 @@ export default {
               text:pregunta.value,
               explanation:explicacion.value,
               difficulty: dificultadFK,
-              score: score.value,
+              score: scoreValor,
               category: selectedCategory.value,
               question_type: 1,
               answer_options: [
@@ -180,7 +178,6 @@ export default {
     return {
       pregunta,
       explicacion,
-      score,
       selectedCategory,
       dificultad,
       respuestaCorrecta,
