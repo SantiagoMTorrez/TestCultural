@@ -84,7 +84,6 @@ export default {
     // Datos del formulario
     const pregunta = ref('');
     const explicacion = ref('');
-    const score = ref('');
     const selectedCategory = ref('');
     const dificultad = ref('Fácil');
     const respuestaCorrecta = ref('');
@@ -192,88 +191,92 @@ export default {
 }
 </script>
 
-<style scoped>
-
-@import url('https://fonts.googleapis.com/css2?family=Jeju+Hallasan&display=swap');
-
-* {
-  font-family: 'Jeju Hallasan', cursive;
-}
-
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-image: url('@/assets/patrones.png');
-
-  padding: 50px;
-}
-
-.card {
-  background: rgb(255, 255, 255);
-  border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 50px;
-  width: 100%;
-  max-width: 600px;
-}
-
-h2 {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 30px;
-  font-size: 24px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #34495e;
-}
-
-input, select {
-  width: 100%;
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
-  transition: border-color 0.3s;
-}
-
-input:focus, select:focus {
-  outline: none;
-  border-color: #3498db;
-}
-
-.submit-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #2ecc71;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 10px;
-}
-
-.submit-btn:hover {
-  background-color: #27ae60;
-}
-.salir-btn {
+  <style scoped>
+  @import url('https://fonts.googleapis.com/css2?family=Jeju+Hallasan&display=swap');
+  
+  * {
+    font-family: 'Jeju Hallasan', cursive;
+  }
+  
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #F9E8D9; /* Fondo beige claro */
+    background-image: url('@/assets/patron-move.gif');
+    background-size: cover;
+    padding: 50px;
+  }
+  
+  .card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    padding: 50px;
+    width: 100%;
+    max-width: 600px;
+    animation: fadeInUp 0.8s ease;
+  }
+  
+  h2 {
+    text-align: center;
+    color: #527853; /* Verde profundo */
+    margin-bottom: 30px;
+    font-size: 24px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #527853;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 10px 15px;
+    border: 2px solid #F7B787; /* Durazno */
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #F9E8D9; /* Beige claro */
+    transition: border-color 0.3s;
+  }
+  
+  input:focus, select:focus {
+    outline: none;
+    border-color: #527853; /* Verde */
+    background-color: #fffefb;
+  }
+  
+  .submit-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #EE7214; /* Naranja */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+  }
+  
+  .submit-btn:hover {
+    background-color: #c85a06; /* Naranja oscuro */
+  }
+  
+  .salir-btn {
     display: block;
     margin: 0 auto;
     text-align: center;
     padding: 12px 25px;
-    background-color: #ff3333;
+    background-color: #527853; /* Verde */
     color: white;
     border: none;
     border-radius: 10px;
@@ -284,11 +287,29 @@ input:focus, select:focus {
   }
   
   .salir-btn:hover {
-    background-color: #7c716d;
+    background-color: #3e5f42; /* Verde más oscuro */
   }
-@media (max-width: 768px) {
-  .card {
-    padding: 20px;
+  
+  /* Animación */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-}
-</style>
+  
+  .fade-in-up {
+    animation: fadeInUp 0.8s ease both;
+  }
+  
+  @media (max-width: 768px) {
+    .card {
+      padding: 20px;
+    }
+  }
+  </style>
+  

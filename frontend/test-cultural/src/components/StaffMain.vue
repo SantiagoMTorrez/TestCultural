@@ -102,15 +102,18 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-image: url('@/assets/patrones.png');
+    background-image: url('@/assets/patron-move.gif');
     background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 1rem;
   }
   
   .form-box {
-    background: rgba(255, 255, 255, 0.95);
+    background: #F9E8D9;
     padding: 3rem 2rem;
     border-radius: 20px;
-    box-shadow: 0 0 15px #00000055;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
     text-align: center;
     max-width: 700px;
     width: 100%;
@@ -130,26 +133,28 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: #ddd;
+    background-color: #EEE;
+    border: 2px solid #527853;
   }
   
   .user-info p {
     font-size: 1.2rem;
     font-weight: bold;
+    color: #527853;
   }
   
   .title {
-    font-size: 1.8rem;
-    margin-top: 20px;
-    margin-bottom: 50px;
+    font-size: 2rem;
+    margin-top: 60px;
+    margin-bottom: 40px;
+    color: #EE7214;
   }
   
   .button-container {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 20px;
     align-items: center;
-    margin-top: 30px;
   }
   
   .action-btn {
@@ -157,37 +162,50 @@
     color: white;
     border: none;
     border-radius: 12px;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     cursor: pointer;
-    transition: background-color 0.3s;
     width: 250px;
-  }
-  
-  .action-btn.new-category {
-    background-color: #05ab68; /* Verde para Nueva Categoría */
-  }
-  
-  .action-btn.new-question {
-    background-color: #338bff; /* Azul para Nueva Pregunta */
+    transition: transform 0.2s, background-color 0.3s;
   }
   
   .action-btn:hover {
-    background-color: #7c716d; /* Color oscuro al pasar el mouse */
+    transform: scale(1.05);
+  }
+  
+  .action-btn.new-category {
+    background-color: #527853;
+  }
+  
+  .action-btn.new-question {
+    background-color: #F7B787;
+    color: #333;
   }
   
   .logout-btn {
+    margin-top: 30px;
     padding: 12px 25px;
-    background-color: #ff3333;
+    background-color: #EE7214;
     color: white;
     border: none;
     border-radius: 10px;
     cursor: pointer;
     font-size: 1.2rem;
-    transition: background-color 0.3s;
-    margin-top: 20px;
+    transition: background-color 0.3s, transform 0.2s;
   }
   
   .logout-btn:hover {
-    background-color: #7c716d;
+    background-color: #C25C0C;
+    transform: scale(1.05);
+  }
+  
+  /* Animación suave al cargar */
+  .fade-slide-up-enter-active {
+    transition: all 0.8s ease;
+  }
+  
+  .fade-slide-up-enter-from {
+    opacity: 0;
+    transform: translateY(30px);
   }
   </style>
+  

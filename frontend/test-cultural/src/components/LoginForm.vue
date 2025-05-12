@@ -10,8 +10,8 @@
       <input v-model="password" type="password" id="password" required />
 
       <div class="buttons">
-        <button @click="login">INICIAR SESIÓN</button>
-        <button @click="irARegistro">REGISTRARSE</button>
+        <button @click="login" class="login-btn">INICIAR SESIÓN</button>
+        <button @click="irARegistro" class="register-btn">REGISTRARSE</button>
       </div>
     </div>
   </div>
@@ -69,28 +69,41 @@ export default {
 };
 </script>
 
+
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Jeju+Hallasan&display=swap');
+
+:global(html), :global(body), :global(#app) {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
 
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: url('@/assets/patrones.png') repeat-y top center;
-  background-size: contain;
-  background-color: #f5f5f5;
+  width: 100vw;
+  background: url('@/assets/patron-move.gif') repeat-y top center;
+  background-size: 100% auto;
+  background-color: #F7B787;
 }
 
 .card {
   font-family: 'Jeju Hallasan', cursive;
-  background: #b7ded3;
+  background: #F9E8D9; /* fondo claro */
   padding: 30px;
-  border-radius: 15px;
+  border-radius: 20px;
   width: 400px;
   text-align: center;
-  border: 5px solid #800000;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  border: 5px solid #527853; /* borde verde musgo */
+  box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+}
+
+h2 {
+  color: #527853; /* verde musgo */
+  margin-bottom: 20px;
 }
 
 input {
@@ -98,35 +111,56 @@ input {
   width: 90%;
   margin: 10px auto;
   padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #888;
+  border-radius: 8px;
+  border: 1px solid #ccc;
   font-size: 1rem;
 }
 
 label {
   display: block;
   margin-top: 15px;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  color: #333;
 }
 
 .buttons {
-  margin-top: 20px;
+  margin-top: 25px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
 }
 
-button {
-  background: orange;
+/* Botón Iniciar Sesión */
+.login-btn {
+  background-color: #527853;
   border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  border-radius: 10px;
   color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
   font-size: 1rem;
-  font-family: 'Jeju Hallasan', cursive;
   cursor: pointer;
-  transition: background 0.3s;
+  font-family: 'Jeju Hallasan', cursive;
+  transition: background-color 0.3s;
 }
 
-button:hover {
-  background: darkorange;
+.login-btn:hover {
+  background-color: #3e5d40;
+}
+
+/* Botón Registrarse */
+.register-btn {
+  background-color: #EE7214;
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: 'Jeju Hallasan', cursive;
+  transition: background-color 0.3s;
+}
+
+.register-btn:hover {
+  background-color: #d45e0f;
 }
 </style>

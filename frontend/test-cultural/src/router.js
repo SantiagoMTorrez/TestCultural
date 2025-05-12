@@ -12,10 +12,11 @@ import PreguntasTabla from './components/PreguntasTabla.vue';
 import Resultados from './components/Resultados.vue';
 import RevisarRespuestas from './components/RevisarRespuestas.vue';
 import QuizGeneric from './components/QuizGeneric.vue';
+import PantallaInicio from './components/PantallaInicio.vue';
 
 const routes = [
   {
-    path: '/',
+    path: '/login',
     name: 'Login',
     component: FormularioLogin
   },
@@ -23,6 +24,11 @@ const routes = [
     path: '/bienvenida',
     name: 'Bienvenida',
     component: BienvenidaForm
+  },
+  {
+    path: '/',
+    name: 'PantallaInicio',
+    component: PantallaInicio
   },
   {
     path: '/mainform', // Cambia la ruta a /mainform

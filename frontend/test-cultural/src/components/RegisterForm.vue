@@ -7,8 +7,8 @@
         <input type="email" v-model="email" placeholder="Correo electrónico" required />
         <input type="password" v-model="password" placeholder="Contraseña" required />
         <div class="button-group">
-          <button type="submit">Registrarse</button>
-          <button type="button" @click="volverAlInicio">Volver al inicio</button>
+          <button type="submit" class="registrarse-btn">Registrarse</button>
+          <button type="button" @click="volverAlInicio" class="inicio-btn">Volver al inicio</button>
         </div>
         <p v-if="errorMensaje" class="error">{{ errorMensaje }}</p>
       </form>
@@ -72,18 +72,26 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-image: url('@/assets/patrones.png');
-  background-size: cover;
+  width: 100vw;
+  background: url('@/assets/patron-move.gif') repeat-y top center;
+  background-size: 100% auto;
+  background-color: #F7B787;
 }
 
 .form-box {
-  background: rgba(255, 255, 255, 0.9);
+  background-color: #F9E8D9;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 10px #00000055;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
   max-width: 400px;
   width: 100%;
   text-align: center;
+  border: 4px solid #527853;
+}
+
+h2 {
+  color: #527853;
+  margin-bottom: 20px;
 }
 
 input {
@@ -91,7 +99,8 @@ input {
   padding: 10px;
   margin: 0.5rem 0;
   border: 1px solid #aaa;
-  border-radius: 5px;
+  border-radius: 8px;
+  font-size: 1rem;
 }
 
 .button-group {
@@ -101,18 +110,36 @@ input {
   margin-top: 1rem;
 }
 
-button {
-  background-color: #4CAF50;
+/* Botón Registrarse - Verde */
+.registrarse-btn {
+  background-color: #527853;
   color: white;
   padding: 0.7rem 1.5rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 1rem;
   transition: background-color 0.3s ease;
 }
 
-button:hover {
-  background-color: #45a049;
+.registrarse-btn:hover {
+  background-color: #3e5d40;
+}
+
+/* Botón Volver al inicio - Naranja */
+.inicio-btn {
+  background-color: #EE7214;
+  color: white;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.inicio-btn:hover {
+  background-color: #d45e0f;
 }
 
 .error {

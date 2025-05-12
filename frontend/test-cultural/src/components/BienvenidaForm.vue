@@ -56,25 +56,30 @@ export default {
 
 * {
   font-family: 'Jeju Hallasan', cursive;
+  box-sizing: border-box;
 }
 
 .bienvenida-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-image: url('@/assets/patrones.png');
+  min-height: 100vh;
+  padding: 2rem;
+  background-image: url('@/assets/patron-move.gif');
   background-size: cover;
+  background-repeat: repeat;
+  background-position: center;
 }
 
 .bienvenida-box {
   background: rgba(255, 255, 255, 0.95);
-  padding: 2.5rem 2rem;
+  padding: 2.5rem;
   border-radius: 20px;
-  box-shadow: 0 0 15px #00000055;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   text-align: center;
-  max-width: 600px;
+  max-width: 500px;
   width: 100%;
+  animation: fadeIn 1s ease-in-out;
 }
 
 .perfil {
@@ -86,26 +91,29 @@ export default {
 }
 
 .avatar {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background-color: #ddd;
+  background-color: #ccc;
+  object-fit: cover;
 }
 
 .nombre {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
+  color: #333;
   font-weight: bold;
 }
 
 h1 {
-  font-size: 2rem;
-  margin-bottom: 10px;
+  font-size: 2.2rem;
+  color: #527853;
+  margin-bottom: 0.8rem;
 }
 
 h2 {
-  font-size: 1.3rem;
-  color: #6d004d;
-  margin-bottom: 30px;
+  font-size: 1.4rem;
+  color: #8c2222;
+  margin-bottom: 2rem;
 }
 
 button {
@@ -121,5 +129,10 @@ button {
 
 button:hover {
   background-color: #8c2222;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

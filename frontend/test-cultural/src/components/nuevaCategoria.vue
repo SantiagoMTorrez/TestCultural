@@ -72,35 +72,43 @@
     }
   };
   </script>
-  
+ 
   <style scoped>
   @import url('https://fonts.googleapis.com/css2?family=Jeju+Hallasan&display=swap');
-
-* {
-  font-family: 'Jeju Hallasan', cursive;
-}
+  
+  * {
+    font-family: 'Jeju Hallasan', cursive;
+    box-sizing: border-box;
+  }
+  
   .container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 93vh;
-    padding: 20px;
-    background-image: url('@/assets/patrones.png');
+    height: 100vh;
+    background-image: url('@/assets/patron-move.gif');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 1rem;
   }
   
   .card {
-    background: white;
+    background: #fff9f0;
     padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 16px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     max-width: 500px;
     width: 100%;
+    animation: fadeInUp 0.8s ease-out;
+    border: 2px solid #f4d19b;
   }
   
   h2 {
     text-align: center;
-    color: #2c3e50;
-    margin-bottom: 20px;
+    color: #9c5f3b;
+    margin-bottom: 25px;
   }
   
   .form-group {
@@ -108,51 +116,75 @@
   }
   
   label {
-    font-weight: 500;
+    font-weight: bold;
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
+    color: #6b3e2e;
   }
   
-  input, textarea {
+  input,
+  textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: 1px solid #e0c3a3;
+    border-radius: 8px;
+    background-color: #fffaf4;
+    color: #5a3e2b;
+    font-size: 1rem;
+  }
+  
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #f4a261;
+    box-shadow: 0 0 5px #f4a26160;
   }
   
   .submit-btn {
     width: 100%;
     padding: 12px;
-    background-color: #3498db;
+    background-color: #f4a261;
     color: white;
     font-size: 16px;
     font-weight: bold;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
+    transition: background-color 0.3s;
   }
   
   .submit-btn:hover {
-    background-color: #2980b9;
+    background-color: #e76f51;
   }
+  
   .salir-btn {
     display: block;
-    margin: 0 auto;
+    margin: 15px auto 0;
     text-align: center;
     padding: 12px 25px;
-    background-color: #ff3333;
+    background-color: #e63946;
     color: white;
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     transition: background-color 0.3s;
-    margin-top: 20px;
   }
   
   .salir-btn:hover {
-    background-color: #7c716d;
+    background-color: #ba3a3a;
   }
-
+  
+  /* Animación */
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
   </style>
   
