@@ -37,7 +37,7 @@
   
       const goToReview = () => {
         router.push({
-          path: '/revisar-respuestas',
+          path: '/revisarRespuestas',
           query: { answers: JSON.stringify(userAnswers.value) },
         });
       };

@@ -6,7 +6,10 @@ import MainForm from '@/components/MainForm.vue'; // Importa el nuevo MainForm
 import QuizStart from '@/components/QuizStart.vue';
 import StaffMain from '@/components/StaffMain.vue';
 import NuevaPreguntas from '@/components/nuevaPreguntas.vue'; 
-import NuevaCategoria from '@/components/nuevaCategoria.vue'; 
+import NuevaCategoria from '@/components/nuevaCategoria.vue';
+import Resultados from './components/Resultados.vue';
+import RevisarRespuestas from './components/RevisarRespuestas.vue';
+import QuizGeneric from './components/QuizGeneric.vue';
 
 const routes = [
   {
@@ -48,7 +51,22 @@ const routes = [
     path: '/nuevaCategoria',
     name: 'NuevaCategoria',
     component: NuevaCategoria
-  }
+  },
+  {
+    path: '/quizGeneric',
+    name: 'QuizGeneric',
+    component: QuizGeneric,
+  },
+  {
+    path: '/resultados',
+    name: 'Resultados',
+    component: Resultados,
+  },
+  {
+    path: '/revisarRespuestas',
+    name: 'RevisarRespuestas',
+    component: RevisarRespuestas,
+  },
 ];
 
 const router = createRouter({
