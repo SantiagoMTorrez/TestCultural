@@ -6,9 +6,10 @@ import MainForm from '@/components/MainForm.vue'; // Importa el nuevo MainForm
 import QuizStart from '@/components/QuizStart.vue';
 import StaffMain from '@/components/StaffMain.vue';
 import NuevaPreguntas from '@/components/nuevaPreguntas.vue'; 
-import NuevaCategoria from '@/components/nuevaCategoria.vue'; 
-import PreguntasTabla from '@/components/PreguntasTabla.vue'; // Asegúrate de que la ruta sea correcta
-import CategoriasTabla from '@/components/CategoriasTabla.vue';
+import NuevaCategoria from '@/components/nuevaCategoria.vue';
+import Resultados from './components/Resultados.vue';
+import RevisarRespuestas from './components/RevisarRespuestas.vue';
+import QuizGeneric from './components/QuizGeneric.vue';
 
 const routes = [
   {
@@ -52,15 +53,20 @@ const routes = [
     component: NuevaCategoria
   },
   {
-    path: '/preguntasTabla',
-    name: 'PreguntasTabla',
-    component: PreguntasTabla
+    path: '/quizGeneric',
+    name: 'QuizGeneric',
+    component: QuizGeneric,
   },
   {
-    path: '/categoriasTabla',
-    name: 'CategoriasTabla',
-    component: CategoriasTabla
-  }
+    path: '/resultados',
+    name: 'Resultados',
+    component: Resultados,
+  },
+  {
+    path: '/revisarRespuestas',
+    name: 'RevisarRespuestas',
+    component: RevisarRespuestas,
+  },
 ];
 
 const router = createRouter({
