@@ -2,12 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router';
 import FormularioLogin from '@/components/LoginForm.vue';
 import RegisterForm from './components/RegisterForm.vue';
 import BienvenidaForm from '@/components/BienvenidaForm.vue';
-import MainForm from '@/components/MainForm.vue'; // Importa el nuevo MainForm
+import MainForm from '@/components/MainForm.vue';
 import QuizStart from '@/components/QuizStart.vue';
 import StaffMain from '@/components/StaffMain.vue';
-import NuevaPreguntas from '@/components/nuevaPreguntas.vue'; 
+import NuevaPreguntas from '@/components/nuevaPreguntas.vue';
 import NuevaCategoria from '@/components/nuevaCategoria.vue';
-import CategoriasTabla from './components/CategoriasTabla.vue';  
+import CategoriasTabla from './components/CategoriasTabla.vue';
 import PreguntasTabla from './components/PreguntasTabla.vue';
 import Resultados from './components/Resultados.vue';
 import RevisarRespuestas from './components/RevisarRespuestas.vue';
@@ -18,66 +18,82 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: FormularioLogin
+    component: FormularioLogin,
   },
   {
     path: '/bienvenida',
     name: 'Bienvenida',
-    component: BienvenidaForm
+    component: BienvenidaForm,
   },
   {
     path: '/',
     name: 'PantallaInicio',
-    component: PantallaInicio
+    component: PantallaInicio,
   },
   {
-    path: '/mainform', // Cambia la ruta a /mainform
-    name: 'MainForm',  // Ruta para el formulario principal
-    component: MainForm
+    path: '/mainform',
+    name: 'MainForm',
+    component: MainForm,
   },
   {
     path: '/registerform',
     name: 'Register',
-    component: RegisterForm
+    component: RegisterForm,
   },
   {
-    path: '/quiz',
+    path: '/quizstart',
     name: 'QuizStart',
-    component: QuizStart
+    component: QuizStart,
+    props: (route) => ({
+      categoryId: route.query.categoryId,
+      categoryName: route.query.categoryName,
+      difficulty: route.query.difficulty,
+    }),
   },
   {
     path: '/staffmain',
     name: 'StaffMain',
-    component: StaffMain
+    component: StaffMain,
   },
   {
     path: '/nuevaPreguntas',
     name: 'NuevaPreguntas',
-    component: NuevaPreguntas
+    component: NuevaPreguntas,
   },
   {
     path: '/nuevaCategoria',
     name: 'NuevaCategoria',
-    component: NuevaCategoria
+    component: NuevaCategoria,
   },
   {
-    path: '/quizGeneric',
+    path: '/quiz',
     name: 'QuizGeneric',
     component: QuizGeneric,
+    props: (route) => ({
+      categoryId: route.query.categoryId,
+      categoryName: route.query.categoryName,
+      difficulty: route.query.difficulty,
+    }),
   },
   {
     path: '/resultados',
     name: 'Resultados',
     component: Resultados,
+    props: (route) => ({
+      score: route.query.score,
+      answers: route.query.answers,
+      category: route.query.category,
+      testId: route.query.testId,
+    }),
   },
   {
     path: '/categoriasTabla',
-    name: 'CategoriasTabla',  
+    name: 'CategoriasTabla',
     component: CategoriasTabla,
   },
   {
     path: '/preguntasTabla',
-    name: 'PreguntasTabla', 
+    name: 'PreguntasTabla',
     component: PreguntasTabla,
   },
   {
@@ -89,7 +105,7 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 });
 
 export default router;
