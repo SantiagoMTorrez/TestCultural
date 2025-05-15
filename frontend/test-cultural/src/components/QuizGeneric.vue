@@ -77,54 +77,54 @@ export default {
     );
 
     const createTest = async (categoryId, difficulty) => {
-      console.log('Creating test with:', { categoryId, difficulty });
-      const token = localStorage.getItem('token');
-      console.log('Token for test creation:', token ? token : 'Missing');
-      if (!token) {
-        console.error('No token available for test creation');
-        errorMessage.value = 'Debes iniciar sesión primero. Redirigiendo...';
-        setTimeout(() => router.push('/login'), 2000);
-        return false;
-      }
+  console.log('Creating test with:', { categoryId, difficulty });
+  const token = localStorage.getItem('token');
+  console.log('Token for test creation:', token ? token : 'Missing');
+  if (!token) {
+    console.error('No token available for test creation');
+    errorMessage.value = 'Debes iniciar sesión primero. Redirigiendo...';
+    setTimeout(() => router.push('/login'), 2000);
+    return false;
+  }
 
-      try {
-        const response = await fetch('http://localhost:8080/trivia/tests/create/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            accept: 'application/json',
-            Authorization: `Token ${token}`,
-          },
-          body: JSON.stringify({
-            n: parseInt(categoryId), // Temporary, replace with correct field
-            category: parseInt(categoryId),
-            time_limit_minutes: 10,
-            difficulty: difficulty || 'Fácil',
-          }),
-        });
-        console.log('Create test response status:', response.status);
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Test creation response:', data);
-          participationId.value = data.participation_id;
-          console.log('Test created, participationId:', participationId.value);
-          return true;
-        } else {
-          const errorText = await response.text();
-          console.error('Error creating test:', response.status, errorText);
-          errorMessage.value = `No se pudo crear el cuestionario: ${response.status} ${errorText}`;
-          if (response.status === 401) {
-            errorMessage.value += ' Token inválido, por favor inicia sesión nuevamente.';
-            setTimeout(() => router.push('/login'), 2000);
-          }
-          return false;
-        }
-      } catch (error) {
-        console.error('Connection error creating test:', error);
-        errorMessage.value = 'Error de conexión al crear el cuestionario.';
-        return false;
+  try {
+    const response = await fetch('http://localhost:8080/trivia/tests/create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify({
+        category: parseInt(categoryId),
+        time_limit_minutes: 10,
+        difficulty: difficulty || 'Fácil',
+        n: 10 // Agregado el campo 'n' con un valor de 10 (ajusta si es necesario)
+      })
+    });
+    console.log('Create test response status:', response.status);
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Test creation response:', data);
+      participationId.value = data.participation_id;
+      console.log('Test created, participationId:', participationId.value);
+      return true;
+    } else {
+      const errorText = await response.text();
+      console.error('Error creating test:', response.status, errorText);
+      errorMessage.value = `No se pudo crear el cuestionario: ${response.status} ${errorText}`;
+      if (response.status === 401) {
+        errorMessage.value += ' Token inválido, por favor inicia sesión nuevamente.';
+        setTimeout(() => router.push('/login'), 2000);
       }
-    };
+      return false;
+    }
+  } catch (error) {
+    console.error('Connection error creating test:', error);
+    errorMessage.value = 'Error de conexión al crear el cuestionario.';
+    return false;
+  }
+};
 
     const fetchQuestion = async (questionNumber) => {
       console.log('Fetching question number:', questionNumber, 'for participationId:', participationId.value);
@@ -142,10 +142,10 @@ export default {
           `http://localhost:8080/trivia/tests/${participationId.value}/question/${questionNumber}/`,
           {
             headers: {
-              accept: 'application/json',
-              Authorization: `Token ${token}`,
+              'Accept': 'application/json',
+              'Authorization': `Token ${token}`
             },
-            method: 'GET',
+            method: 'GET'
           }
         );
         console.log('Fetch question response status:', response.status);
@@ -176,56 +176,57 @@ export default {
     };
 
     const submitAnswer = async (option) => {
-      console.log('Submitting answer for question:', currentQuestionNumber.value, 'option:', JSON.stringify(option, null, 2));
-      try {
-        const token = localStorage.getItem('token');
-        console.log('Token for submit answer:', token ? token : 'Missing');
-        if (!token) {
-          console.error('No token available for submitting answer');
-          errorMessage.value = 'Debes iniciar sesión primero. Redirigiendo...';
-          setTimeout(() => router.push('/login'), 2000);
-          return 0;
-        }
+  console.log('Submitting answer for question:', currentQuestionNumber.value, 'option:', JSON.stringify(option, null, 2));
+  try {
+    const token = localStorage.getItem('token');
+    console.log('Submit answer token:', token ? token : 'Missing');
+    if (!token) {
+      console.error('No token available for submitting answer');
+      errorMessage.value = 'Debes iniciar sesión primero. Redirigiendo...';
+      setTimeout(() => router.push('/login'), 2000);
+      return 0;
+    }
 
-        const response = await fetch(
-          `http://localhost:8080/trivia/tests/${participationId.value}/question/${currentQuestionNumber.value}/answer/`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              accept: 'application/json',
-              Authorization: `Token ${token}`,
-            },
-            body: JSON.stringify({
-              answer_option: option.id,
-            }),
-          }
-        );
-        console.log('Submit answer response status:', response.status);
-        if (response.ok) {
-          const data = await response.json();
-          const points = data.points || (option.correct ? 100 : 0);
-          console.log('Answer submitted, points:', points);
-          return points;
-        } else {
-          const errorText = await response.text();
-          console.error('Error submitting answer:', response.status, errorText);
-          errorMessage.value = `Error al enviar la respuesta: ${response.status} ${errorText}`;
-          if (response.status === 401) {
-            errorMessage.value += ' Token inválido, por favor inicia sesión nuevamente.';
-            setTimeout(() => router.push('/login'), 2000);
-          } else if (response.status === 400) {
-            errorMessage.value += ' Verifica que la opción seleccionada sea válida.';
-            setTimeout(() => router.push('/mainform'), 2000);
-          }
-          return 0;
-        }
-      } catch (error) {
-        console.error('Connection error submitting answer:', error);
-        errorMessage.value = 'Error de conexión al enviar la respuesta.';
-        return 0;
+    const response = await fetch(
+      `http://localhost:8080/trivia/tests/${participationId.value}/question/${currentQuestionNumber.value}/answer/`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Token ${token}`
+        },
+        body: JSON.stringify({
+          answer_option: option.id
+        })
       }
-    };
+    );
+    console.log('Submit answer response status:', response.status);
+    if (response.ok) {
+      const data = await response.json();
+      const points = data.points || (option.correct ? 100 : 0);
+      option.correct = points > 0; // Asignar 'correct' basado en los puntos (agregado)
+      console.log('Answer submitted, points:', points);
+      return points;
+    } else {
+      const errorText = await response.text();
+      console.error('Error submitting answer:', response.status, errorText);
+      errorMessage.value = `-error al enviar la respuesta: ${response.status} ${errorText}`;
+      if (response.status === 401) {
+        errorMessage.value += ' Token inválido, por favor inicia sesión nuevamente.';
+        setTimeout(() => router.push('/login'), 2000);
+      } else if (response.status === 400) {
+        errorMessage.value += ' Verifica que la opción seleccionada sea válida.';
+        setTimeout(() => router.push('/mainform'), 2000);
+      }
+      return 0;
+    }
+  } catch (error) {
+    console.error('Connection error submitting answer:', error);
+    errorMessage.value = 'Error de conexión al enviar la respuesta.';
+    return 0;
+  }
+};
 
     const startQuestionTimer = () => {
       questionTimer.value = 10;
@@ -242,22 +243,22 @@ export default {
     };
 
     const selectAnswer = async (option) => {
-      if (isAnswered.value) return;
-      isAnswered.value = true;
-      selectedOption.value = option;
-      clearInterval(questionTimerInterval.value); // Stop timer on answer selection
+  if (isAnswered.value) return;
+  isAnswered.value = true;
+  selectedOption.value = option;
+  clearInterval(questionTimerInterval.value); // Stop timer on answer selection
 
-      const points = await submitAnswer(option);
-      score.value += points;
+  const points = await submitAnswer(option);
+  score.value += points;
 
-      userAnswers.value.push({
-        question: currentQuestion.value,
-        selectedOption: option,
-        points,
-      });
+  userAnswers.value.push({
+    question: currentQuestion.value,
+    selectedOption: option,
+    points
+  });
 
-      setTimeout(nextQuestion, 1000); // Show feedback for 1 second
-    };
+  setTimeout(nextQuestion, 2000); // Cambiado de 1000 a 2000 para dar más tiempo
+};
 
     const nextQuestion = async () => {
       console.log('Moving to next question');
@@ -291,10 +292,10 @@ export default {
           `http://localhost:8080/trivia/tests/${participationId.value}/result/`,
           {
             headers: {
-              accept: 'application/json',
-              Authorization: `Token ${token}`,
+              'Accept': 'application/json',
+              'Authorization': `Token ${token}`
             },
-            method: 'GET',
+            method: 'GET'
           }
         );
         console.log('Fetch results response status:', response.status);
@@ -307,8 +308,8 @@ export default {
               score: data.score || score.value,
               answers: JSON.stringify(data.answers || userAnswers.value),
               category: category.value,
-              testId: participationId.value,
-            },
+              testId: participationId.value
+            }
           });
         } else {
           const errorText = await response.text();
@@ -380,9 +381,9 @@ export default {
       goToResults,
       category,
       errorMessage,
-      router,
+      router
     };
-  },
+  }
 };
 </script>
 

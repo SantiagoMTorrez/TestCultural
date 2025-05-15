@@ -18,27 +18,27 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: FormularioLogin,
+    component: FormularioLogin
   },
   {
     path: '/bienvenida',
     name: 'Bienvenida',
-    component: BienvenidaForm,
+    component: BienvenidaForm
   },
   {
     path: '/',
     name: 'PantallaInicio',
-    component: PantallaInicio,
+    component: PantallaInicio
   },
   {
     path: '/mainform',
     name: 'MainForm',
-    component: MainForm,
+    component: MainForm
   },
   {
     path: '/registerform',
     name: 'Register',
-    component: RegisterForm,
+    component: RegisterForm
   },
   {
     path: '/quizstart',
@@ -47,23 +47,23 @@ const routes = [
     props: (route) => ({
       categoryId: route.query.categoryId,
       categoryName: route.query.categoryName,
-      difficulty: route.query.difficulty,
-    }),
+      difficulty: route.query.difficulty
+    })
   },
   {
     path: '/staffmain',
     name: 'StaffMain',
-    component: StaffMain,
+    component: StaffMain
   },
   {
     path: '/nuevaPreguntas',
     name: 'NuevaPreguntas',
-    component: NuevaPreguntas,
+    component: NuevaPreguntas
   },
   {
     path: '/nuevaCategoria',
     name: 'NuevaCategoria',
-    component: NuevaCategoria,
+    component: NuevaCategoria
   },
   {
     path: '/quiz',
@@ -72,8 +72,8 @@ const routes = [
     props: (route) => ({
       categoryId: route.query.categoryId,
       categoryName: route.query.categoryName,
-      difficulty: route.query.difficulty,
-    }),
+      difficulty: route.query.difficulty
+    })
   },
   {
     path: '/resultados',
@@ -83,29 +83,29 @@ const routes = [
       score: route.query.score,
       answers: route.query.answers,
       category: route.query.category,
-      testId: route.query.testId,
-    }),
+      testId: route.query.testId
+    })
   },
   {
     path: '/categoriasTabla',
     name: 'CategoriasTabla',
-    component: CategoriasTabla,
+    component: CategoriasTabla
   },
   {
     path: '/preguntasTabla',
     name: 'PreguntasTabla',
-    component: PreguntasTabla,
+    component: PreguntasTabla
   },
   {
     path: '/revisarRespuestas',
     name: 'RevisarRespuestas',
-    component: RevisarRespuestas,
-  },
+    component: RevisarRespuestas
+  }
 ];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes
 });
 
 export default router;
