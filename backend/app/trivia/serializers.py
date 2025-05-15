@@ -10,6 +10,11 @@ class QuestionTypeSerializer(serializers.ModelSerializer):
         model = QuestionType
         fields = '__all__'
 
+class AnswerOptionCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnswerOption
+        fields = ('id', 'text', 'correct')
+
 class AnswerOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnswerOption
@@ -20,6 +25,12 @@ class QuestionStatementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ('id', 'text', 'score', 'difficulty', 'answer_options')
+
+class QuestionResultSerializer(serializers.ModelSerializer):
+    answer_options = AnswerOptionCreateSerializer(many=True)
+    class Meta:
+        model = Question
+        fields = ('id', 'text', 'score', 'difficulty', 'answer_options', 'explanation')
 
 class TestCreationSerializer(serializers.Serializer):
     n = serializers.IntegerField(min_value=1)
@@ -44,11 +55,6 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'name', 'description')
-
-class AnswerOptionCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AnswerOption
-        fields = ('text', 'correct')
 
 class QuestionCreateSerializer(serializers.ModelSerializer):
     answer_options = AnswerOptionCreateSerializer(many=True)

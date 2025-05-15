@@ -20,7 +20,8 @@ from .serializers import (
     AnswerSubmissionResponseSerializer,
     CategorySerializer,
     QuestionCreateSerializer,
-    QuestionTypeSerializer
+    QuestionTypeSerializer, 
+    QuestionResultSerializer
 )
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
@@ -74,7 +75,7 @@ class QuestionRetrieveView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, participation_id, question_number):
         try:
-            participation = TestParticipation.objects.get(id=participation_id, user=request.user)
+            participation = TestParticipation.objects.get(id=participation_id)
         except TestParticipation.DoesNotExist:
             return Response({"error": "Participación no encontrada."}, status=status.HTTP_404_NOT_FOUND)
         try:
@@ -82,7 +83,7 @@ class QuestionRetrieveView(APIView):
         except TestQuestion.DoesNotExist:
             return Response({"error": "Pregunta no encontrada."}, status=status.HTTP_404_NOT_FOUND)
         question = test_question.question
-        question_serializer = QuestionStatementSerializer(question)
+        question_serializer = QuestionResultSerializer(question)
         return Response(question_serializer.data, status=status.HTTP_200_OK)
 
 @extend_schema(
@@ -497,7 +498,8 @@ class TestResultView(APIView):
         except TestParticipation.DoesNotExist:
             return Response({"error": "Participación no encontrada."}, status=status.HTTP_404_NOT_FOUND)
         responses = ParticipationResponse.objects.filter(test_participation=participation)
-        correct_count = sum(1 for resp in responses if resp.answer_option.correct)
+        
+        correct_count = sum(1 for resp in responses if resp.answer_option != None and resp.answer_option.correct)
         total_questions = TestQuestion.objects.filter(test=participation.test).count()
         data = {"total_score": participation.score, "correct_answers": correct_count, "total_questions": total_questions}
         return Response(data, status=status.HTTP_200_OK)
