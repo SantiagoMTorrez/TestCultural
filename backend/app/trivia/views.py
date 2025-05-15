@@ -92,10 +92,6 @@ class QuestionRetrieveView(APIView):
         "crea un registro en ParticipationResponse (solo con accessed_at) "
         "y devuelve el enunciado y opciones."
     ),
-    parameters=[
-        OpenApiParameter("participation_id", OpenApiTypes.INT, description="ID de la participación", required=True),
-        OpenApiParameter("question_number", OpenApiTypes.INT, description="Número secuencial de la pregunta", required=True),
-    ],
     responses={200: QuestionStatementSerializer, 404: OpenApiTypes.OBJECT},
     tags=["Tests"]
 )
@@ -140,10 +136,6 @@ class QuestionRetrieveAndAccessView(APIView):
         "Actualiza ParticipationResponse con la opción, el tiempo y la puntuación dinámica, "
         "actualiza TestParticipation.score y devuelve el resultado."
     ),
-    parameters=[
-        OpenApiParameter("participation_id", OpenApiTypes.INT, description="ID de la participación", required=True),
-        OpenApiParameter("question_number", OpenApiTypes.INT, description="Número de la pregunta", required=True),
-    ],
     request=AnswerSubmissionSerializer,
     responses={200: AnswerSubmissionResponseSerializer, 400: OpenApiTypes.OBJECT, 404: OpenApiTypes.OBJECT},
     tags=["Tests"],
