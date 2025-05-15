@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
@@ -383,20 +382,7 @@ class QuestionEditView(APIView):
 
 
 
-
-
 @extend_schema(
-    summary="Listar preguntas con filtros avanzados",
-    description=(
-        "Recupera todas las preguntas, permitiendo filtrar opcionalmente por:\n"
-        "- `category`: ID de la categoría (exacto).\n"
-        "- `question_type`: ID del tipo de pregunta (exacto).\n"
-        "- `difficulty_min`: dificultad mínima (inclusive).\n"
-        "- `difficulty_max`: dificultad máxima (inclusive).\n\n"
-        "Si se envían ambos límites (`difficulty_min` y `difficulty_max`), "
-        "se devuelven solo las preguntas cuya dificultad esté entre ambos valores.\n"
-        "Si se envía solo uno de los límites, se aplica el filtro correspondiente."
-    ),
     summary="Listar preguntas con filtros avanzados",
     description=(
         "Recupera todas las preguntas, permitiendo filtrar opcionalmente por:\n"
@@ -437,47 +423,11 @@ class QuestionEditView(APIView):
             required=False,
             description="Dificultad máxima (<=)"
         ),
-        OpenApiParameter(
-            name="category",
-            type=OpenApiTypes.INT,
-            location=OpenApiParameter.QUERY,
-            required=False,
-            description="Filtrar por ID de categoría"
-        ),
-        OpenApiParameter(
-            name="question_type",
-            type=OpenApiTypes.INT,
-            location=OpenApiParameter.QUERY,
-            required=False,
-            description="Filtrar por ID de tipo de pregunta"
-        ),
-        OpenApiParameter(
-            name="difficulty_min",
-            type=OpenApiTypes.INT,
-            location=OpenApiParameter.QUERY,
-            required=False,
-            description="Dificultad mínima (>=)"
-        ),
-        OpenApiParameter(
-            name="difficulty_max",
-            type=OpenApiTypes.INT,
-            location=OpenApiParameter.QUERY,
-            required=False,
-            description="Dificultad máxima (<=)"
-        ),
     ],
     responses={200: QuestionStatementSerializer(many=True)},
     tags=["Questions"],
-    tags=["Questions"],
 )
 class QuestionListView(ListAPIView):
-    """
-    Lista todas las preguntas y permite filtrar por:
-    - category:       ID de categoría
-    - question_type:  ID de tipo de pregunta
-    - difficulty_min: Límite inferior de dificultad (>=)
-    - difficulty_max: Límite superior de dificultad (<=)
-    """
     """
     Lista todas las preguntas y permite filtrar por:
     - category:       ID de categoría
@@ -489,17 +439,8 @@ class QuestionListView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = QuestionCreateSerializer
 
-    serializer_class = QuestionCreateSerializer
-
     def get_queryset(self):
         queryset = Question.objects.all()
-        params = self.request.query_params
-
-        category      = params.get('category')
-        question_type = params.get('question_type')
-        lower         = params.get('difficulty_min')
-        upper         = params.get('difficulty_max')
-
         params = self.request.query_params
 
         category      = params.get('category')
@@ -519,42 +460,7 @@ class QuestionListView(ListAPIView):
         elif upper is not None:
             queryset = queryset.filter(difficulty__lte=upper)
 
-
-        if lower is not None and upper is not None:
-            queryset = queryset.filter(difficulty__gte=lower, difficulty__lte=upper)
-        elif lower is not None:
-            queryset = queryset.filter(difficulty__gte=lower)
-        elif upper is not None:
-            queryset = queryset.filter(difficulty__lte=upper)
-
         return queryset
-
-@extend_schema(
-    summary="Eliminar pregunta",
-    description="Permite eliminar una pregunta creada por el usuario. Solo el creador (campo created_by) puede eliminar la pregunta.",
-    request=QuestionCreateSerializer,
-    tags=["Questions"],
-)
-class QuestionDeleteView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAdminUser]
-    serializer_class = QuestionCreateSerializer
-    def delete(self, request, pk):
-        try:
-            question = Question.objects.get(id=pk)
-        except Question.DoesNotExist:
-            return Response({"error": "Pregunta no encontrada."}, status=status.HTTP_404_NOT_FOUND)
-        if question.created_by != request.user:
-            return Response({"error": "No tienes permiso para eliminar esta pregunta."}, status=status.HTTP_403_FORBIDDEN)
-        
-        if question.test_question.exists():
-            return Response({"error": "Esta pregunta está vinculada a un test y no se puede borrar"}, status=status.HTTP_403_FORBIDDEN)
-        
-        try:
-            question.delete()
-            return Response(status=status.HTTP_202_ACCEPTED)
-        except:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @extend_schema(
     summary="Eliminar pregunta",
