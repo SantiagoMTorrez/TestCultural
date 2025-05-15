@@ -13,6 +13,7 @@ import Resultados from './components/Resultados.vue';
 import RevisarRespuestas from './components/RevisarRespuestas.vue';
 import QuizGeneric from './components/QuizGeneric.vue';
 import PantallaInicio from './components/PantallaInicio.vue';
+import ModoEducativo  from './components/ModoEducativo.vue';
 
 const routes = [
   {
@@ -29,6 +30,11 @@ const routes = [
     path: '/',
     name: 'PantallaInicio',
     component: PantallaInicio
+  },
+  {
+    path: '/modoEducativo',
+    name: 'ModoEducativo',
+    component: ModoEducativo
   },
   {
     path: '/mainform', // Cambia la ruta a /mainform
