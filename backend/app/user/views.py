@@ -242,6 +242,7 @@ class CreateUserView(generics.CreateAPIView):
     """Create user profiles"""
     serializer_class = UserSerializer
 
+#
 @extend_schema_view(
     list=extend_schema(
         tags=['Regions'],

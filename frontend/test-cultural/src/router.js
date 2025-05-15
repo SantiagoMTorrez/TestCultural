@@ -1,21 +1,20 @@
-// src/router.js
 import { createRouter, createWebHistory } from 'vue-router';
-import PantallaInicio from '@/components/PantallaInicio.vue'; // inicio pantalla
 import FormularioLogin from '@/components/LoginForm.vue';
 import RegisterForm from './components/RegisterForm.vue';
 import BienvenidaForm from '@/components/BienvenidaForm.vue';
 import MainForm from '@/components/MainForm.vue';
 import QuizStart from '@/components/QuizStart.vue';
 import StaffMain from '@/components/StaffMain.vue';
-import NuevaPreguntas from '@/components/nuevaPreguntas.vue'; 
+import NuevaPreguntas from '@/components/nuevaPreguntas.vue';
 import NuevaCategoria from '@/components/nuevaCategoria.vue';
+import CategoriasTabla from './components/CategoriasTabla.vue';
+import PreguntasTabla from './components/PreguntasTabla.vue';
+import Resultados from './components/Resultados.vue';
+import RevisarRespuestas from './components/RevisarRespuestas.vue';
+import QuizGeneric from './components/QuizGeneric.vue';
+import PantallaInicio from './components/PantallaInicio.vue';
 
 const routes = [
-  {
-    path: '/',
-    name: 'Inicio',
-    component: PantallaInicio
-  },
   {
     path: '/login',
     name: 'Login',
@@ -25,6 +24,11 @@ const routes = [
     path: '/bienvenida',
     name: 'Bienvenida',
     component: BienvenidaForm
+  },
+  {
+    path: '/',
+    name: 'PantallaInicio',
+    component: PantallaInicio
   },
   {
     path: '/mainform',
@@ -37,9 +41,14 @@ const routes = [
     component: RegisterForm
   },
   {
-    path: '/quiz',
+    path: '/quizstart',
     name: 'QuizStart',
-    component: QuizStart
+    component: QuizStart,
+    props: (route) => ({
+      categoryId: route.query.categoryId,
+      categoryName: route.query.categoryName,
+      difficulty: route.query.difficulty
+    })
   },
   {
     path: '/staffmain',
@@ -55,6 +64,42 @@ const routes = [
     path: '/nuevaCategoria',
     name: 'NuevaCategoria',
     component: NuevaCategoria
+  },
+  {
+    path: '/quiz',
+    name: 'QuizGeneric',
+    component: QuizGeneric,
+    props: (route) => ({
+      categoryId: route.query.categoryId,
+      categoryName: route.query.categoryName,
+      difficulty: route.query.difficulty
+    })
+  },
+  {
+    path: '/resultados',
+    name: 'Resultados',
+    component: Resultados,
+    props: (route) => ({
+      score: route.query.score,
+      answers: route.query.answers,
+      category: route.query.category,
+      testId: route.query.testId
+    })
+  },
+  {
+    path: '/categoriasTabla',
+    name: 'CategoriasTabla',
+    component: CategoriasTabla
+  },
+  {
+    path: '/preguntasTabla',
+    name: 'PreguntasTabla',
+    component: PreguntasTabla
+  },
+  {
+    path: '/revisarRespuestas',
+    name: 'RevisarRespuestas',
+    component: RevisarRespuestas
   }
 ];
 

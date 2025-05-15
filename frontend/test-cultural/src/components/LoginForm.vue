@@ -10,8 +10,8 @@
       <input v-model="password" type="password" id="password" required />
 
       <div class="buttons">
-        <button class="login-btn" @click="login">INICIAR SESIÓN</button>
-        <button class="register-btn" @click="irARegistro">REGISTRARSE</button>
+        <button @click="login" class="login-btn">INICIAR SESIÓN</button>
+        <button @click="irARegistro" class="register-btn">REGISTRARSE</button>
       </div>
     </div>
   </div>
@@ -36,6 +36,8 @@ export default {
           password: password.value
         };
 
+        console.log("Enviando login:", loginData); // Verifica qué estás enviando
+
         const response = await fetch("http://localhost:8080/user/login/", {
           headers: { "Content-Type": "application/json" },
           method: "POST",
@@ -46,8 +48,8 @@ export default {
           const data = await response.json();
           token.value = data.token;
           localStorage.setItem('token', token.value);
-          localStorage.setItem('dataname', data.name);
-          localStorage.setItem('staff', data.is_staff);
+          localStorage.setItem('dataname', data.name); // guarda el nombre del usuario
+          localStorage.setItem('staff', data.is_staff); // guarda el email del usuario
           router.push('/bienvenida');
         } else {
           const errorData = await response.json();

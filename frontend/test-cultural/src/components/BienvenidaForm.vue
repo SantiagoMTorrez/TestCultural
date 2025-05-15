@@ -17,7 +17,7 @@ import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 
 export default {
-  name: 'BienvenidaForm',
+  dataname: 'BienvenidaForm',
   setup() {
     const router = useRouter();
     const dataname = ref('');
@@ -35,12 +35,15 @@ export default {
     });
 
     const irAlMenu = () => {
-      const staff = localStorage.getItem('staff');
-      if (staff === 'false') {
-        router.push('/mainform');
+      console.log(localStorage.getItem('staff'));
+      if (localStorage.getItem('staff')=='false') {
+        console.log('Redirigiendo a /mainform');  // Confirmación en consola de la redirección  
+        router.push('/mainform');  // Redirigir a /mainform
       } else {
-        router.push('/staffmain');
+        console.log('Redirigiendo a /staff');  // Confirmación en consola de la redirección  
+        router.push('/staffmain');  // Redirigir a /staff
       }
+      
     };
 
     return { irAlMenu, dataname };

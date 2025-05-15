@@ -1,32 +1,36 @@
 <template>
-    <transition name="fade-slide-up">
-      <div class="main-container">
-        <div class="form-box">
-          <!-- Encabezado con foto y nombre del usuario -->
-          <div class="header-left">
-            <img src="@/assets/avatar.png" alt="Avatar" class="avatar" />
-            <div class="user-info">
-              <p>{{ userName }}</p>
-            </div>
-          </div>
-  
-          <h3 class="title">Panel de Staff</h3>
-  
-          <!-- Botones -->
-          <div class="button-container">
-            <button class="action-btn new-category" @click="nuevaCategoria">
-              Nueva Categoría
-            </button>
-            <button class="action-btn new-question" @click="nuevaPregunta">
-              Nueva Pregunta
-            </button>
+    <div class="main-container">
+      <div class="form-box">
+        <!-- Encabezado con foto y nombre del usuario alineado a la izquierda -->
+        <div class="header-left">
+          <img src="@/assets/avatar.png" alt="Avatar" class="avatar" />
+          <div class="user-info">
+            <p>{{ userName }}</p>
           </div>
         </div>
   
-        <!-- Cerrar sesión -->
-        <button @click="logout" class="logout-btn">CERRAR SESIÓN</button>
+        <!-- Título -->
+        <h3 class="title">Panel de Staff</h3>
+  
+        <!-- Botones centrales -->
+        <div class="button-container">
+          <button class="action-btn new-category" @click="nuevaCategoria">
+            Nueva Categoría
+          </button>
+          <button class="action-btn new-question" @click="categorias">
+            Categorias
+          </button>
+          <button class="action-btn new-category" @click="nuevaPregunta">
+            Nueva Pregunta
+          </button>
+          <button class="action-btn new-question" @click="preguntas">
+            Preguntas
+          </button>
+          
+        </div>
       </div>
-    </transition>
+      <button @click="logout" class="logout-btn">CERRAR SESIÓN</button>
+    </div>
   </template>
   
   <script>
@@ -52,11 +56,27 @@
       });
   
       const nuevaCategoria = () => {
+        console.log('Nueva categoría');
         router.push('/nuevaCategoria');
+        // Aquí iría la lógica para crear nueva categoría
       };
   
       const nuevaPregunta = () => {
+        console.log('Nueva pregunta');
         router.push('/nuevaPreguntas');
+        // Aquí iría la lógica para crear nueva pregunta
+      };
+
+      const preguntas = () => {
+        console.log('Preguntas');
+        router.push('/preguntasTabla');
+        // Aquí iría la lógica para ver preguntas
+      };
+
+      const categorias = () => {
+        console.log('Categorias');
+        router.push('/categoriasTabla');
+        // Aquí iría la lógica para ver categorias
       };
   
       const logout = () => {
@@ -64,7 +84,7 @@
         router.push('/');
       };
   
-      return { userName, nuevaCategoria, nuevaPregunta, logout };
+      return { userName, nuevaCategoria, nuevaPregunta, categorias, preguntas, logout };
     }
   };
   </script>

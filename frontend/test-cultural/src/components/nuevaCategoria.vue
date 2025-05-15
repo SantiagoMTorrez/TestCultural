@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-      <div class="card fade-in-up">
+      <div class="card">
         <h2>Nueva Categoría<br />BICENTENARIO DE BOLIVIA</h2>
   
         <form @submit.prevent="crearCategoria">
@@ -15,7 +15,7 @@
           </div>
   
           <button type="submit" class="submit-btn">Guardar Categoría</button>
-          <button type="button" class="salir-btn" @click="salir">Salir</button>
+          <button type="submit" class="salir-btn" @click="salir">Salir</button>
         </form>
       </div>
     </div>
@@ -31,15 +31,14 @@
       const nombre = ref('');
       const descripcion = ref('');
       const router = useRouter();
-  
       const salir = () => {
+        console.log('Saliendo...');
         router.push('/staffMain');
       };
-  
       const crearCategoria = async () => {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch('http://localhost:8080/trivia/categories/create/', {
+          const response = await fetch('http://localhost:8080/trivia/categories/', {
             method: 'POST',
             headers: {
               "Content-Type": "application/json",
@@ -53,7 +52,7 @@
   
           if (response.ok) {
             alert('Categoría creada exitosamente');
-            router.push('/staffMain');
+            router.push('/staffMain'); // Redirigir a la página principal
           } else {
             const errorData = await response.json();
             alert(errorData.message || 'Error al crear la categoría.');
@@ -73,7 +72,7 @@
     }
   };
   </script>
-  
+ 
   <style scoped>
   @import url('https://fonts.googleapis.com/css2?family=Jeju+Hallasan&display=swap');
   

@@ -8,7 +8,7 @@
         <input type="password" v-model="password" placeholder="Contraseña" required />
         <div class="button-group">
           <button type="submit" class="registrarse-btn">Registrarse</button>
-          <button type="button" class="inicio-btn" @click="volverAlInicio">Volver al inicio</button>
+          <button type="button" @click="volverAlInicio" class="inicio-btn">Volver al inicio</button>
         </div>
         <p v-if="errorMensaje" class="error">{{ errorMensaje }}</p>
       </form>
@@ -40,9 +40,10 @@ export default {
           })
         });
 
+        // No usamos .json() directamente por si el backend no responde como JSON
         if (response.status === 201) {
           alert("¡Registro exitoso! Ahora inicia sesión.");
-          this.$router.push("/");
+          this.$router.push("/"); // Login
         } else {
           let errorData = await response.text();
           this.errorMensaje = `Error al registrarse: ${errorData}`;
