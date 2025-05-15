@@ -14,6 +14,9 @@ import RevisarRespuestas from './components/RevisarRespuestas.vue';
 import QuizGeneric from './components/QuizGeneric.vue';
 import PantallaInicio from './components/PantallaInicio.vue';
 import ModoEducativo  from './components/ModoEducativo.vue';
+import QuizGenericProv from './components/QuizGenericProv.vue';
+import QuizStartProv from './components/QuizStartProv.vue';
+import FinTest from './components/FinTest.vue';
 
 const routes = [
   {
@@ -25,6 +28,21 @@ const routes = [
     path: '/bienvenida',
     name: 'Bienvenida',
     component: BienvenidaForm
+  },
+  {
+    path: '/finTest',
+    name: 'FinTest',
+    component: FinTest
+  },
+  {
+    path: '/quizStartProv',
+    name: 'QuizStartProv',
+    component: QuizStartProv
+  },
+  {
+    path : '/quizGenericProv',
+    name: 'QuizGenericProv',
+    component: QuizGenericProv
   },
   {
     path: '/',

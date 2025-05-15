@@ -110,7 +110,7 @@ export default {
         return;
       }
       router.push({
-        path: '/quiz',
+        path: '/quizStartProv',
         query: {
           categoryId: selectedCategory.value.id,
           categoryName: selectedCategory.value.name,

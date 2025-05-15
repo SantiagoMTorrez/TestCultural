@@ -48,6 +48,7 @@ export default {
           const data = await response.json();
           token.value = data.token;
           localStorage.setItem('token', token.value);
+          localStorage.setItem('idUsuario', data.pk); // guarda el email del usuario
           localStorage.setItem('dataname', data.name); // guarda el nombre del usuario
           localStorage.setItem('staff', data.is_staff); // guarda el email del usuario
           router.push('/bienvenida');
