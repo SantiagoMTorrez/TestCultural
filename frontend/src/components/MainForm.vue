@@ -9,7 +9,7 @@
       </div>
       <div class="header-right">
         <button class="mode-btn challenge" @click="selectMode('Desafío')">Modo Desafío</button>
-        <button class="mode-btn educational" @click="selectMode('Educativo')">Modo Educativo</button>
+        <button class="mode-btn educational" @click="modoEducativo">Modo Educativo</button>
         <button class="mode-btn ranking" @click="selectMode('Ranking')">Ver Ranking</button>
       </div>
 
@@ -139,6 +139,10 @@ export default {
       router.push('/login');
     };
 
+    const modoEducativo = () => {
+      router.push('/modoEducativo');
+    };
+
     return {
       userName,
       categories,
@@ -147,6 +151,7 @@ export default {
       numQuestions,
       errorMessage,
       errorQuestions,
+      modoEducativo,
       selectCategory,
       // selectMode,
       startQuiz,

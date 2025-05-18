@@ -15,12 +15,18 @@ import PantallaInicio from './components/PantallaInicio.vue';
 import GreatingNotification from './components/GreatingNotification.vue';
 import FailedNotification from './components/FailedNotification.vue';
 import Results from './components/Resultados.vue';
+import ModoEducativo from './components/ModoEducativo.vue';
 
 const routes = [
   {
     path: "/login",
     name: "Login",
     component: FormularioLogin,
+  },
+  {
+    path: "/modoEducativo",
+    name: "ModoEducativo",
+    component: ModoEducativo,
   },
   {
     path: "/bienvenida",
