@@ -107,9 +107,11 @@ export default {
       selectedCategory.value = category;
     };
 
-    // const selectMode = (mode) => {
-    //   // lógica futura por modo
-    // };
+    const selectMode = (mode) => {
+      if(mode == 'Ranking'){
+        router.push('/player-ranking');
+      }
+    };
 
     const startQuiz = () => {
       errorQuestions.value = '';
@@ -153,7 +155,7 @@ export default {
       errorQuestions,
       modoEducativo,
       selectCategory,
-      // selectMode,
+      selectMode,
       startQuiz,
       logout,
     };

@@ -5,6 +5,7 @@ from django.contrib.auth import (
     get_user_model,
     authenticate,
 )
+from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 
@@ -12,6 +13,7 @@ from rest_framework.exceptions import APIException
 from django.contrib.auth.models import AnonymousUser
 
 from core.models import Region
+from trivia.models import Player
 
 class NotValidRole(APIException):
     status_code = 400
@@ -28,15 +30,18 @@ class UserSerializer(serializers.ModelSerializer):
     """Serializer for the user object."""
 
     class Meta:
-        model = get_user_model()
+        model = Player
         fields = ['pk', 'email', 'password', 'name', 'phone_number', 'is_active', 'is_staff', 'region'] 
         extra_kwargs = {
             'password': {'write_only': True},
         }
 
     def create(self, validated_data):
-        """Create and return a user with encrypted password."""
-        return get_user_model().objects.create_user(**validated_data)
+        player = Player.objects.create(**validated_data)
+        validate_password(player)
+        player.set_password(validated_data['password'])
+        player.save()
+        return player
 
     def update(self, instance, validated_data):
         """Update and return user."""
@@ -53,7 +58,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ManageUserSerializer(UserSerializer):
 
     class Meta:
-        model = get_user_model()
+        model = Player
         fields = ['email', 'password', 'name', 'phone_number', 'is_active']  # Added 'phone_number'
         extra_kwargs = {'password': {'write_only': True, 'min_length': 12}}
 

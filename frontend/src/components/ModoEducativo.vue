@@ -81,7 +81,7 @@ export default {
 
     const salir = () => {
       console.log('Saliendo...');
-      router.push('/staffMain');
+      router.push('/mainform');
     };
     
     return {

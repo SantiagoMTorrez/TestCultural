@@ -3,6 +3,10 @@ from django.contrib.auth import get_user_model
 from datetime import datetime
 User = get_user_model()
 
+
+class Player(User):
+    points = models.FloatField(default=0.0)
+
 class Category(models.Model):
     name = models.CharField(max_length=250)
     description = models.CharField(max_length=250)
