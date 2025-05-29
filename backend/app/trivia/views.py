@@ -9,7 +9,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
 from .models import (
     Test, TestQuestion, TestParticipation, Question, AnswerOption, ParticipationResponse, 
-    Category, QuestionType
+    Category, QuestionType, Player
 )
 from core.permissions import IsAdminOrReadOnly
 from .serializers import (
@@ -21,11 +21,18 @@ from .serializers import (
     CategorySerializer,
     QuestionCreateSerializer,
     QuestionTypeSerializer, 
-    QuestionResultSerializer
+    PlayerSerialzer,
+    QuestionResultSerializer,
 )
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from drf_spectacular.types import OpenApiTypes
+
+
+class PlayerRank(APIView):
+    def get(self, request):
+        serializer = PlayerSerialzer(Player.objects.all().order_by("-points"), many=True)
+        return Response(serializer.data)
 
 @extend_schema(
     summary="Creación de test",
@@ -221,6 +228,14 @@ class AnswerSubmissionView(APIView):
         if question_number == total:
             responses = ParticipationResponse.objects.filter(test_participation=participation)
             correct_count = sum(1 for r in responses if r.answer_option.correct)
+            
+            try:
+                player = Player.objects.get(email=request.user.email)
+                player.points += participation.score
+                player.save()
+            except Exception:
+                print("User is not a player")
+                
             data["final_result"] = {
                 "total_score": participation.score,
                 "correct_answers": correct_count,

@@ -15,12 +15,19 @@ import PantallaInicio from './components/PantallaInicio.vue';
 import GreatingNotification from './components/GreatingNotification.vue';
 import FailedNotification from './components/FailedNotification.vue';
 import Results from './components/Resultados.vue';
+import ModoEducativo from './components/ModoEducativo.vue';
+import PlayerRank from './components/PlayerRank.vue';
 
 const routes = [
   {
     path: "/login",
     name: "Login",
     component: FormularioLogin,
+  },
+  {
+    path: "/modoEducativo",
+    name: "ModoEducativo",
+    component: ModoEducativo,
   },
   {
     path: "/bienvenida",
@@ -96,6 +103,11 @@ const routes = [
     path: "/revisarRespuestas",
     name: "RevisarRespuestas",
     component: RevisarRespuestas,
+  },
+  {
+    path: "/player-ranking",
+    name: "PlayerRanking",
+    component: PlayerRank,
   },
   {
     path: "/kaboom",

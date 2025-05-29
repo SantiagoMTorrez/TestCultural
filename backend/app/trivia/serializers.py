@@ -1,9 +1,16 @@
 from rest_framework import serializers
 from .models import (
     Test, TestQuestion, TestParticipation, Question, AnswerOption, ParticipationResponse,
-    Category, QuestionType
+    Category, QuestionType, Player
 )
 from rest_framework.serializers import PrimaryKeyRelatedField
+from user.serializers import UserSerializer
+
+
+class PlayerSerialzer(UserSerializer):
+    class Meta:
+        model = Player
+        fields = ['email', 'name', 'points']
 
 class QuestionTypeSerializer(serializers.ModelSerializer):
     class Meta:

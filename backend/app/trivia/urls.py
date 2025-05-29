@@ -11,6 +11,7 @@ from .views import (
     TestResultView,
     QuestionTypeView,
     QuestionRetrieveAndAccessView,
+    PlayerRank
 )
 from rest_framework.routers import DefaultRouter
 
@@ -19,6 +20,7 @@ router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'question-types', QuestionTypeView, basename='question-type')
 
 urlpatterns = [
+    path('test/player-rank/', PlayerRank.as_view(), name='player-rank'),
     path('tests/create/', TestCreationView.as_view(), name='test-create'),
     path('tests/<int:participation_id>/question/<int:question_number>/', QuestionRetrieveView.as_view(), name='question-retrieve'),
     path('tests/<int:participation_id>/question/<int:question_number>/start/', QuestionRetrieveAndAccessView.as_view(), name='question-retrieve-and-access'),
