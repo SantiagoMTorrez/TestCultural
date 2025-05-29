@@ -111,6 +111,9 @@ export default {
       if(mode == 'Ranking'){
         router.push('/player-ranking');
       }
+      if(mode == 'Desafío'){
+        router.push('/quizdesafio');
+      }
     };
 
     const startQuiz = () => {

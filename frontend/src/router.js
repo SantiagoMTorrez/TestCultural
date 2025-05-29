@@ -4,6 +4,7 @@ import RegisterForm from './components/RegisterForm.vue';
 import BienvenidaForm from '@/components/BienvenidaForm.vue';
 import MainForm from '@/components/MainForm.vue';
 import QuizStart from '@/components/QuizStart.vue';
+import QuizDesafio from '@/components/QuizDesafio.vue';
 import StaffMain from '@/components/StaffMain.vue';
 import NuevaPreguntas from '@/components/nuevaPreguntas.vue';
 import NuevaCategoria from '@/components/nuevaCategoria.vue';
@@ -58,6 +59,11 @@ const routes = [
       categoryName: route.query.categoryName,
       difficulty: route.query.difficulty,
     }),
+  },
+  {
+    path: "/quizdesafio",
+    name: "QuizDesafio",
+    component: QuizDesafio,
   },
   {
     path: "/staffmain",
