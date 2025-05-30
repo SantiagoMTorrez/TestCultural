@@ -107,7 +107,8 @@
         customId: '',
         selectedTestId: null,
         joined: false,
-        errorMessage: ''
+        errorMessage: '',
+        gamesTimeoutCallback: 1,
       };
     },
     async mounted() {
@@ -118,6 +119,9 @@
         return;
       }
       await Promise.all([this.fetchCategories(), this.fetchGames()]);
+    },
+    beforeUnmount(){
+      clearTimeout(this.gamesTimeoutCallback);
     },
     methods: {
       async fetchCategories() {
@@ -160,6 +164,7 @@
         } finally {
           this.loading = false;
         }
+        this.gamesTimeoutCallback = setTimeout(this.fetchGames, 5000)
       },
       async createGame() {
         this.errorCategory = '';
@@ -223,7 +228,8 @@
   @import url('https://fonts.googleapis.com/css2?family=Jeju+Hallasan&display=swap');
   
   .lobby-screen {
-      display: flex;
+    display: flex;
+    flex-grow: 1 1;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -313,7 +319,9 @@
   }
   
   .quiz-wrapper {
-    grid-column: 1 / -1;
+    width: 70%;
+    min-height: 70%;
+
   }
   
   .error {

@@ -8,22 +8,22 @@
 export default {
   name: 'TimerBarCanvas',
   props: {
-    duration: {            // Duración en segundos
+    duration: {           
       type: Number,
       default: 0
     },
-    reverse: {             // Indicador de sentido inverso
+    reverse: {             
       type: Boolean,
       default: false
     }
   },
   data() {
     return {
-      began: 0,            // Tiempo de inicio en ms
-      animationFrameId: 0, // ID de RAF
-      ctx: null,           // Contexto 2D
-      canvasW: 0,          // Anchura cacheada
-      canvasH: 0           // Altura cacheada
+      began: 0,            
+      animationFrameId: 0, 
+      ctx: null,          
+      canvasW: 0,          
+      canvasH: 0           
     };
   },
   watch: {
@@ -56,11 +56,9 @@ export default {
       let progress = (now - this.began) / (this.duration * 1000);
       if (progress >= 1) return;
       if (this.reverse) progress = 1 - progress;
-      // Dibujar un único clear + fill
       this.ctx.clearRect(0, 0, this.canvasW, this.canvasH);
       this.ctx.fillRect(0, 0, this.canvasW * progress, this.canvasH);
 
-      // Programar siguiente fotograma
       this.animationFrameId = requestAnimationFrame(this.update);
     }
   }
