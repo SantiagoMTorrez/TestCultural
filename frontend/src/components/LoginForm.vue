@@ -38,7 +38,7 @@ export default {
 
         console.log("Enviando login:", loginData); // Verifica qué estás enviando
 
-        const response = await fetch("http://localhost:8080/user/login/", {
+        const response = await fetch(`http://${window.location.hostname}:8080/user/login/`, {
           headers: { "Content-Type": "application/json" },
           method: "POST",
           body: JSON.stringify(loginData)
@@ -47,6 +47,8 @@ export default {
         if (response.ok) {
           const data = await response.json();
           token.value = data.token;
+          console.log('user_id', data.pk);
+          localStorage.setItem('user_id', data.pk);
           localStorage.setItem('token', token.value);
           localStorage.setItem('dataname', data.name); // guarda el nombre del usuario
           localStorage.setItem('staff', data.is_staff); // guarda el email del usuario

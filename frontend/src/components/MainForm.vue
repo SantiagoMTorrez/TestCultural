@@ -81,7 +81,7 @@ export default {
       userName.value = localStorage.getItem('dataname') || 'Usuario';
 
       try {
-        const response = await fetch('http://localhost:8080/trivia/categories/', {
+        const response = await fetch(`http://${window.location.hostname}:8080/trivia/categories/`, {
           headers: {
             accept: 'application/json',
             Authorization: `Token ${token}`,
@@ -110,6 +110,9 @@ export default {
     const selectMode = (mode) => {
       if(mode == 'Ranking'){
         router.push('/player-ranking');
+      }
+      else if(mode == 'Desafío'){
+        router.push('/lobby');
       }
     };
 

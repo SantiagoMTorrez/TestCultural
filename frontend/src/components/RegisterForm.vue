@@ -30,7 +30,7 @@ export default {
   methods: {
     async registrarse() {
       try {
-        const response = await fetch("http://localhost:8080/user/create/", {
+        const response = await fetch(`http://${window.location.hostname}:8080/user/create/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

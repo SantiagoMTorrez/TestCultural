@@ -95,7 +95,7 @@ export default {
     // Obtener categorías al montar el componente
     onMounted(async () => {
       try {
-        const response = await fetch("http://localhost:8080/trivia/categories/", {
+        const response = await fetch(`http://${window.location.hostname}:8080/trivia/categories/`, {
           headers: { 
             "accept": "application/json", 
             'Authorization': `Token ${localStorage.getItem('token')}` 
@@ -139,7 +139,7 @@ export default {
 
         console.log("Enviando pregunta:");
 
-        const response = await fetch("http://localhost:8080/trivia/questions/create/", {
+        const response = await fetch(`http://${window.location.hostname}:8080/trivia/questions/create/`, {
           headers: { 
             "Content-Type": "application/json", "Authorization" : "Token " + tokenValor},
           method: "POST",

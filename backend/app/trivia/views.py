@@ -1,5 +1,6 @@
 import random
 from django.db import transaction
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,10 +10,11 @@ from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
 from .models import (
     Test, TestQuestion, TestParticipation, Question, AnswerOption, ParticipationResponse, 
-    Category, QuestionType, Player
+    Category, QuestionType, Player,
 )
 from core.permissions import IsAdminOrReadOnly
 from .serializers import (
+    AvailableTestSerializer,
     TestCreationSerializer,
     TestCreationResponseSerializer,
     QuestionStatementSerializer,
@@ -23,6 +25,7 @@ from .serializers import (
     QuestionTypeSerializer, 
     PlayerSerialzer,
     QuestionResultSerializer,
+    MultiplayerTestCreationSerializer,
 )
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
@@ -530,4 +533,63 @@ class QuestionTypeView(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = QuestionTypeSerializer
 
+
+class AvailableTestsView(generics.ListAPIView):
+    """
+    Endpoint que devuelve todos los tests multijugador disponibles para unirse.
+    Sólo muestra aquellos con `multiplayer=True`.
+    """
+    serializer_class = AvailableTestSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Test.objects.filter(multiplayer=True).order_by('-created_at')
+
+class MultiplayerTestCreationView(APIView):
+    """
+    Endpoint para crear un test multijugador con preguntas aleatorias.
+    Retorna el test_id generado.
+    """
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = MultiplayerTestCreationSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        n = serializer.validated_data['n']
+        category_id = serializer.validated_data.get('category')
+        time_limit = serializer.validated_data['time_limit_minutes']
+
+        # Selección de preguntas
+        if category_id:
+            pool = list(Question.objects.filter(category_id=category_id))
+        else:
+            pool = list(Question.objects.all())
+
+        if len(pool) < n:
+            return Response(
+                {'error': 'No existen suficientes preguntas.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        selected = random.sample(pool, n)
+
+        # Creación del test y sus TestQuestion en una transacción
+        with transaction.atomic():
+            test = Test.objects.create(
+                title=f"Partida multijugador de {request.user.name}",
+                multiplayer=True,
+                time_limit_minutes=time_limit,
+                created_at=timezone.now()
+            )
+            for idx, question in enumerate(selected, start=1):
+                TestQuestion.objects.create(
+                    test=test,
+                    question=question,
+                    question_number=idx
+                )
+
+        return Response({'test_id': test.id}, status=status.HTTP_201_CREATED)
 

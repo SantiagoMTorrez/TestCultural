@@ -75,3 +75,15 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
         for option in options_data:
             AnswerOption.objects.create(question=question, **option)
         return question
+
+class AvailableTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Test
+        fields = ['id', 'title', 'created_at', 'time_limit_minutes']
+        read_only_fields = fields
+
+class MultiplayerTestCreationSerializer(serializers.Serializer):
+    n = serializers.IntegerField(min_value=1)
+    category = serializers.IntegerField(required=False)
+    time_limit_minutes = serializers.IntegerField(default=60)
+

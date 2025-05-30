@@ -109,7 +109,7 @@ export default {
         setTimeout(() => router.push('/login'), 2000);
         return false;
       }
-      const resp = await fetch('http://localhost:8080/trivia/tests/create/', {
+      const resp = await fetch(`http://${window.location.hostname}/trivia/tests/create/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ export default {
       const token = localStorage.getItem('token');
       if (!token) { router.push('/login'); return false; }
       const resp = await fetch(
-        `http://localhost:8080/trivia/tests/${participationId.value}/question/${num}/start`,
+        `http://${window.location.hostname}:8080/trivia/tests/${participationId.value}/question/${num}/start`,
         { headers: { 'Accept': 'application/json', 'Authorization': `Token ${token}` } }
       );
       if (resp.status === 404) {
@@ -156,7 +156,7 @@ export default {
     async function submitAnswer(option) {
       const token = localStorage.getItem('token');
       const resp = await fetch(
-        `http://localhost:8080/trivia/tests/${participationId.value}/question/${currentQuestionNumber.value}/answer/`,
+        `http://${window.location.hostname}:8080/trivia/tests/${participationId.value}/question/${currentQuestionNumber.value}/answer/`,
         {
           method: 'POST',
           headers: {
@@ -235,7 +235,7 @@ export default {
       try {
         const token = localStorage.getItem('token');
         const resp = await fetch(
-          `http://localhost:8080/trivia/tests/${participationId.value}/result/`,
+          `http://${window.location.hostname}/trivia/tests/${participationId.value}/result/`,
           { headers: { 'Authorization': `Token ${token}` } }
         );
         if (!resp.ok) {

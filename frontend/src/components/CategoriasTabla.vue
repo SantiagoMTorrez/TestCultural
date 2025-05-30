@@ -45,7 +45,7 @@ export default {
 
     const cargarCategorias = async () => {
       try {
-        const response = await fetch("http://localhost:8080/trivia/categories/", {
+        const response = await fetch(`http://${window.location.hostname}:8080/trivia/categories/`, {
           headers: { 
             "accept": "application/json", 
             'Authorization': `Token ${localStorage.getItem('token')}` 
@@ -71,7 +71,7 @@ export default {
 
     const obtenerPreguntasDeCategoria = async (categoryId) => {
       try {
-        const response = await fetch(`http://localhost:8080/trivia/questions/?category=${categoryId}`, {
+        const response = await fetch(`http://${window.location.hostname}:8080/trivia/questions/?category=${categoryId}`, {
           headers: { 
             "accept": "application/json", 
             'Authorization': `Token ${localStorage.getItem('token')}` 
@@ -93,7 +93,7 @@ export default {
 
     const eliminarPregunta = async (id) => {
       try {
-        const response = await fetch(`http://localhost:8080/trivia/questions/${id}/delete/`, {
+        const response = await fetch(`http://${window.location.hostname}:8080/trivia/questions/${id}/delete/`, {
           headers: { 
             "accept": "application/json", 
             'Authorization': `Token ${localStorage.getItem('token')}`,
@@ -116,7 +116,7 @@ export default {
 
     const eliminarCategoria = async (id) => {
       try {
-        const response = await fetch(`http://localhost:8080/trivia/categories/${id}/`, {
+        const response = await fetch(`http://${window.location.hostname}:8080/trivia/categories/${id}/`, {
           headers: { 
             "accept": "application/json", 
             'Authorization': `Token ${localStorage.getItem('token')}`,

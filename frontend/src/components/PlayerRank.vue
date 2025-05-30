@@ -52,7 +52,7 @@
           return;
         }
         try {
-          const response = await fetch('http://localhost:8080/trivia/test/player-rank/', {
+          const response = await fetch(`http://${window.location.hostname}:8080/trivia/test/player-rank/`, {
             headers: {
               accept: 'application/json',
               Authorization: `Token ${token}`,

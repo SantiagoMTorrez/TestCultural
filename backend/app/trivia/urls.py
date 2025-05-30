@@ -11,7 +11,9 @@ from .views import (
     TestResultView,
     QuestionTypeView,
     QuestionRetrieveAndAccessView,
-    PlayerRank
+    PlayerRank,
+    MultiplayerTestCreationView,
+    AvailableTestsView,
 )
 from rest_framework.routers import DefaultRouter
 
@@ -30,5 +32,7 @@ urlpatterns = [
     path('questions/<int:pk>/edit/', QuestionEditView.as_view(), name='question-edit'),
     path('questions/<int:pk>/delete/', QuestionDeleteView.as_view(), name='question-delete'),
     path('questions/', QuestionListView.as_view(), name='question-list'),
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('tests/multiplayer/create/', MultiplayerTestCreationView.as_view(), name='multiplayer-create'),
+    path('tests/available/', AvailableTestsView.as_view(), name='multiplayer-create'),
 ]

@@ -54,7 +54,7 @@ export default {
         console.log('Fetching category name for categoryId:', categoryId.value);
         loading.value = true;
         try {
-          const response = await fetch(`http://localhost:8080/trivia/categories/${categoryId.value}/`, {
+          const response = await fetch(`http://${window.location.hostname}:8080/trivia/categories/${categoryId.value}/`, {
             headers: {
               accept: 'application/json',
               Authorization: `Token ${token}`,

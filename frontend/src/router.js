@@ -17,6 +17,7 @@ import FailedNotification from './components/FailedNotification.vue';
 import Results from './components/Resultados.vue';
 import ModoEducativo from './components/ModoEducativo.vue';
 import PlayerRank from './components/PlayerRank.vue';
+import LobbyComponent from './components/LobbyComponent.vue';
 
 const routes = [
   {
@@ -125,6 +126,11 @@ const routes = [
     props: {
       message: "Ups… eso salió mal.",
     },
+  },
+  {
+    path: "/lobby",
+    name: "multiplayerLobby",
+    component: LobbyComponent,
   },
 ];
 

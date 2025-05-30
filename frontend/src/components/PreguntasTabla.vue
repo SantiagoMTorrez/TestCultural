@@ -54,7 +54,7 @@ export default {
 
     const cargarPreguntas = async () => {
       try {
-        const response = await fetch("http://localhost:8080/trivia/questions/", {
+        const response = await fetch(`http://${window.location.hostname}:8080/trivia/questions/`, {
           headers: { 
             "accept": "application/json", 
             'Authorization': `Token ${localStorage.getItem('token')}` 
@@ -80,7 +80,7 @@ export default {
 
     const eliminarPregunta = async (id) => {
       try {
-        const response = await fetch(`http://localhost:8080/trivia/questions/${id}/delete/`, {
+        const response = await fetch(`http://${window.location.hostname}:8080/trivia/questions/${id}/delete/`, {
           headers: { 
             "accept": "application/json", 
             'Authorization': `Token ${localStorage.getItem('token')}`,

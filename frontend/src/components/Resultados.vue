@@ -76,7 +76,7 @@ export default {
         const token = localStorage.getItem('token');
         for (let i = 1; i <= totalQuestions; i++) {
           const resp = await fetch(
-            `http://localhost:8080/trivia/tests/${participationId}/question/${i}/`,
+            `http://${window.location.hostname}:8080/trivia/tests/${participationId}/question/${i}/`,
             {
               headers: {
                 Accept: 'application/json',
