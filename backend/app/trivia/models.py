@@ -27,6 +27,7 @@ class Test(models.Model):
     title = models.CharField(max_length=250)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
+    ended  = models.BooleanField(default=False)
     multiplayer = models.BooleanField(default=False)
     time_limit_minutes = models.IntegerField(default=60)
 

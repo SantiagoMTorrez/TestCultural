@@ -13,7 +13,7 @@ services:
     command: >
       sh -c "python manage.py wait_for_db &&
              python manage.py migrate &&
-             uvicorn app.asgi:application --host 0.0.0.0 --port 8080 --reload"
+             uvicorn app.asgi:application --host 0.0.0.0 --port 8080 --reload --workers 4 "
   #  --certificate /etc/ssl/certs/cert.pem --key /etc/ssl/private/key.pem"
 
     environment:
@@ -22,8 +22,11 @@ services:
       - DB_NAME=devdb
       - DB_USER=devuser
       - DB_PASS=changeme
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       - db-cultural
+      - redis
 
 
   db-cultural:
@@ -34,6 +37,16 @@ services:
       - POSTGRES_DB=devdb             #Local dev DataBase configuration for instalation
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=changeme
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
 volumes:
   dev-db-data-cultural: #volume name, if left blank docker will assign it automatically
   dev-static-data:
+  redis_data:

@@ -10,3 +10,4 @@ django-filter
 psycopg2-binary
 channels
 uvicorn[standard]
+channels_redis>=3.5.0

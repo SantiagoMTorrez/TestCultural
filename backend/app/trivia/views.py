@@ -533,7 +533,6 @@ class QuestionTypeView(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = QuestionTypeSerializer
 
-
 class AvailableTestsView(generics.ListAPIView):
     """
     Endpoint que devuelve todos los tests multijugador disponibles para unirse.
@@ -543,7 +542,8 @@ class AvailableTestsView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Test.objects.filter(multiplayer=True, ).order_by('-created_at')
+        now =  timezone.now()
+        return Test.objects.filter(multiplayer=True,ended=False, started_at__isnull=True).order_by('-created_at')
 
 class MultiplayerTestCreationView(APIView):
     """

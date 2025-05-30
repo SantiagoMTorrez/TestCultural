@@ -86,9 +86,27 @@ DATABASES = {
     }
 }
 
+from django.core.exceptions import ImproperlyConfigured
+def get_env(var_name):
+    try:
+        return os.environ[var_name]
+    except KeyError:
+        raise ImproperlyConfigured(f"Falta la variable de entorno {var_name}")
+
+
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                (
+                    get_env("REDIS_HOST"),
+                    int(get_env("REDIS_PORT"))
+                )
+            ],
+            "capacity": 1000,
+            "expiry": 10,
+        },
     },
 }
 

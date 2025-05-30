@@ -43,6 +43,7 @@ class GameSession:
         self.has_ended = False
         self.end_time = None
         self.host_id = None
+        self.counter = 3
 
     async def _load_test(self):
         if self.test is None:
@@ -94,9 +95,26 @@ class GameSession:
             self._schedule_advance(group_name, channel_layer, limit_secs)
         )
 
+    async def _run_count_down(self, group_name, channel_layer):
+        if(self.counter <= 0):
+            await self.advance(group_name, channel_layer)
+        else:
+            await asyncio.sleep(1)
+            payload = {
+                "action":   "counter",
+                "index":    self.counter,
+            }
+            await channel_layer.group_send(group_name, {"type": "game.event", "payload":payload})
+            self.counter -= 1
+            asyncio.create_task(self._run_count_down(group_name, channel_layer))
+
     async def _schedule_advance(self, group_name, channel_layer, delay):
+        if(self.current_index+1 < len(self.questions)):
+            self.counter = 3
+        else:
+            self.counter = 0
         await asyncio.sleep(delay)
-        await self.advance(group_name, channel_layer)
+        await self._run_count_down(group_name, channel_layer)
 
     async def advance(self, group_name, channel_layer):
         self.current_index += 1
@@ -107,6 +125,8 @@ class GameSession:
                 group_name,
                 {"type": "game.event", "payload": {"action": "game_over"}}
             )
+            self.test.ended = True
+            await sync_to_async(self.test.save)()
 
 class GameConsumer(AsyncWebsocketConsumer):
     """
@@ -174,6 +194,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         pr = await sync_to_async(self._record_response)(answer_id)
         payload = {'action': 'update_score', 'user_id': self.scope['user'].id, 'score': pr.score}
         await self.channel_layer.group_send(self.group_name, {'type': 'game.event', 'payload': payload})
+        await self.broadcast_players()
 
     async def action_time_sync(self, data):
         ts = timezone.now().timestamp()
@@ -182,9 +203,9 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def broadcast_players(self):
         TestParticipation = apps.get_model('trivia', 'TestParticipation')
         participations = await sync_to_async(list)(
-            TestParticipation.objects.select_related('user').filter(test_id=self.test_id)
+            TestParticipation.objects.select_related('user').filter(test_id=self.test_id).order_by("-score")
         )
-        players = [{'id': p.user.id, 'username': p.user.name} for p in participations]
+        players = [{'id': p.user.id, 'username': p.user.name, 'score': p.score} for p in participations]
         payload = {'action': 'players_list', 'players': players, 'host_id': self.session.host_id}
         await self.channel_layer.group_send(self.group_name, {'type': 'game.event', 'payload': payload})
 
@@ -204,7 +225,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         pr.save()
         self.participation.score += pr.score
         self.participation.save(update_fields=['score'])
-        return pr
+        return pr.score
 
     async def game_event(self, event):
         await self.send(text_data=json.dumps(event['payload']))
