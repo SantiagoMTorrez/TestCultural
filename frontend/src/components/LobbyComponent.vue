@@ -25,6 +25,17 @@
             type="number"
             v-model.number="numQuestions"
             min="1"
+            step="1"
+            class="questions-input"
+            placeholder="Ingrese cantidad"
+          />
+          <h3>Tiempo Límite</h3>
+          <input
+            type="number"
+            v-model.number="timeLimit"
+            min="1"
+            max="120"
+            step="1"
             class="questions-input"
             placeholder="Ingrese cantidad"
           />
@@ -87,6 +98,7 @@
         categories: [],
         selectedCategory: null,
         numQuestions: 5,
+        timeLimit: 10,
         errorCategory: '',
         errorQuestions: '',
         games: [],
@@ -166,7 +178,8 @@
           const token = localStorage.getItem('token');
           const payload = {
             n: this.numQuestions,
-            category: this.selectedCategory.id
+            category: this.selectedCategory.id,
+            time_limit_minutes: this.timeLimit,
           };
           const response = await fetch(`http://${window.location.hostname}:8080/trivia/tests/multiplayer/create/`, {
             method: 'POST',

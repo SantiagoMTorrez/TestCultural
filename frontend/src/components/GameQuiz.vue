@@ -33,7 +33,7 @@
           </template>
           <template v-else>
             <!-- Barra de progreso -->
-            <TimerBar :progress="questionTimerProgress" />
+            <TimerBar :duration="questionDuration" :reverse="true" />
             <!-- Tarjeta de pregunta -->
             <div class="question-card">
               <p class="question-text">{{ question.text }}</p>
@@ -96,7 +96,8 @@ export default {
       showGreet: false,
       greetMessage: '',
       showFail: false,
-      failMessage: ''
+      failMessage: '',
+      questionDuration: 0,
     };
   },
   computed: {
@@ -106,9 +107,9 @@ export default {
       const s = secs % 60;
       return `${m}:${s < 10 ? '0' : ''}${s}`;
     },
-    questionTimerProgress() {
-      const duration = this.endTs - this.startTs;
-      return duration > 0 ? (this.remaining / duration) * 100 : 0;
+    questionTimerDuration() {
+      console.log(this.questionDuration)
+      return this.questionDuration;
     },
     isHost() {
       return this.userId && this.hostId === this.userId;
@@ -142,18 +143,16 @@ export default {
           this.question = p.question;
           this.options = p.question.options;
           this.score = p.score ?? this.score;
-          this.startTs = p.start_ts * 1000;
-          this.endTs = p.end_ts * 1000;
+          this.startTs = p.start_ts;
+          this.endTs = p.end_ts;
+          this.questionDuration = this.endTs - this.startTs + Math.random()/100
           this.answered = false;
           this.selectedOption = null;
-          clearInterval(this.timerInterval);
-          this.timerInterval = setInterval(this.updateRemaining, 250);
           break;
         case 'update_score':
           this.score = p.score;
           break;
         case 'game_over':
-          clearInterval(this.timerInterval);
           break;
       }
     };
@@ -165,11 +164,6 @@ export default {
     if (this.socket) this.socket.close();
   },
   methods: {
-    updateRemaining() {
-      const now = Date.now() + this.offset;
-      this.remaining = this.endTs - now;
-      if (this.remaining <= 0) clearInterval(this.timerInterval);
-    },
     submitAnswer(id) {
       if (this.answered) return;
       this.socket.send(JSON.stringify({ action: 'submit', answer_id: id }));

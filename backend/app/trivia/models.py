@@ -26,6 +26,7 @@ class QuestionType(models.Model):
 class Test(models.Model):
     title = models.CharField(max_length=250)
     created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
     multiplayer = models.BooleanField(default=False)
     time_limit_minutes = models.IntegerField(default=60)
 
@@ -59,6 +60,8 @@ class AnswerOption(models.Model):
 class TestQuestion(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='test_question')
+    released_at = models.DateTimeField(null=True, blank=True)
+    blocked_at = models.DateTimeField(null=True, blank=True)
     question_number = models.IntegerField()
 
     def __str__(self):
@@ -73,9 +76,6 @@ class TestParticipation(models.Model):
 
     def __str__(self):
         return f"Participation by {self.user} in {self.test.title}"
-
-
-from django.db import models
 
 class ParticipationResponse(models.Model):
     test_participation = models.ForeignKey(TestParticipation, on_delete=models.CASCADE)

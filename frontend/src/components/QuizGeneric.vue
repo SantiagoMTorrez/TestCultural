@@ -19,7 +19,7 @@
       <!-- Muestra pregunta mientras no haya acabado -->
       <template v-else-if="!quizFinished">
         <template v-if="currentQuestion">
-          <TimerBar :progress="questionTimerProgress" />
+          <TimerBar :duration="questionTimerDuration" :reverse="true" />
           <p class="question">{{ currentQuestion.text }}</p>
 
           <div class="options">
@@ -81,6 +81,7 @@ export default {
     const score                 = ref(0);
     const userAnswers           = ref([]);
     const questionTimer         = ref(10);
+    const questionDuration      = ref(10);
     const currentQuestionNumber = ref(1);
     const showGreet             = ref(false);
     const greetMessage          = ref('');
@@ -99,7 +100,7 @@ export default {
         ? [...currentQuestion.value.answer_options].sort(() => Math.random() - 0.5)
         : []
     );
-    const questionTimerProgress = computed(() => (questionTimer.value / 10) * 100);
+    const questionTimerDuration = computed(() => (questionDuration.value));
 
     // Crear test inicial
     async function createTest(cid, diff, n) {
@@ -109,7 +110,7 @@ export default {
         setTimeout(() => router.push('/login'), 2000);
         return false;
       }
-      const resp = await fetch(`http://${window.location.hostname}/trivia/tests/create/`, {
+      const resp = await fetch(`http://${window.location.hostname}:8080/trivia/tests/create/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -149,6 +150,7 @@ export default {
         return false;
       }
       currentQuestion.value = await resp.json();
+      questionDuration.value = 20;
       return true;
     }
 
@@ -235,7 +237,7 @@ export default {
       try {
         const token = localStorage.getItem('token');
         const resp = await fetch(
-          `http://${window.location.hostname}/trivia/tests/${participationId.value}/result/`,
+          `http://${window.location.hostname}:8080/trivia/tests/${participationId.value}/result/`,
           { headers: { 'Authorization': `Token ${token}` } }
         );
         if (!resp.ok) {
@@ -278,10 +280,9 @@ export default {
 
     return {
       loading, errorMessage, category, currentQuestion,
-      shuffledOptions, selectedOption, isAnswered, quizFinished,
-      questionTimerProgress, handleSelect, goToResults, goHome,
+      shuffledOptions, selectedOption, isAnswered, quizFinished, handleSelect, goToResults, goHome,
       showGreet, greetMessage, showFail, failMessage,
-      totalQuestions, finalResult, score
+      totalQuestions, finalResult, score, questionTimerDuration
     };
   }
 };

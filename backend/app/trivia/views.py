@@ -543,7 +543,7 @@ class AvailableTestsView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Test.objects.filter(multiplayer=True).order_by('-created_at')
+        return Test.objects.filter(multiplayer=True, ).order_by('-created_at')
 
 class MultiplayerTestCreationView(APIView):
     """

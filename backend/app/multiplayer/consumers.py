@@ -10,8 +10,10 @@ from django.utils import timezone
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.apps import apps
-
+from typing import Dict, TypeVar
 logger = logging.getLogger(__name__)
+
+GS = TypeVar('GS', bound="GameSession") 
 
 class GameSession:
     """
@@ -27,7 +29,7 @@ class GameSession:
     _sessions = {}
 
     @classmethod
-    def get(cls, test_id):
+    def get(cls, test_id) -> GS:
         if test_id not in cls._sessions:
             cls._sessions[test_id] = cls(test_id)
         return cls._sessions[test_id]
@@ -38,6 +40,7 @@ class GameSession:
         self.questions = []
         self.current_index = 0
         self.is_running = False
+        self.has_ended = False
         self.end_time = None
         self.host_id = None
 
@@ -63,16 +66,18 @@ class GameSession:
         await self._load_questions()
         self.is_running = True
         await self._send_current_question(group_name, channel_layer)
+        self.test.started_at = timezone.now()
+        await sync_to_async(self.test.save)()
 
     async def _send_current_question(self, group_name, channel_layer):
         tq = self.questions[self.current_index]
         question = tq.question
         opts = [
-            {"id": opt.id, "text": opt.text}
+            {"id": opt.id, "text": opt.text, "correct": opt.correct, "points": question.score}
             for opt in await sync_to_async(list)(question.answer_options.all())
         ]
         now = timezone.now()
-        limit_secs = self.test.time_limit_minutes * 60
+        limit_secs = self.test.time_limit_minutes/len(self.questions) * 60
         self.end_time = now + timedelta(seconds=limit_secs)
         payload = {
             "action":   "question",
@@ -133,6 +138,9 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.accept()
         # Inicializar sesión y participación en BD
         self.session = GameSession.get(self.test_id)
+        if self.session.is_running or self.session.has_ended:
+            self.channel_layer.group_discard(self.group_name, self.channel_name)
+            return 
         TestParticipation = apps.get_model('trivia', 'TestParticipation')
         self.participation, _ = await sync_to_async(
             TestParticipation.objects.get_or_create
