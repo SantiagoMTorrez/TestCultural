@@ -97,10 +97,10 @@ class GameSession:
         self.current_task = asyncio.create_task(self._schedule_advance(group_name, channel_layer, limit_secs))
 
     async def _run_count_down(self, group_name, channel_layer):
+        await asyncio.sleep(1)
         if(self.counter <= 0):
             await self.advance(group_name, channel_layer)
         else:
-            await asyncio.sleep(1)
             payload = {
                 "action":   "counter",
                 "index":    self.counter,
@@ -127,8 +127,18 @@ class GameSession:
                 group_name,
                 {"type": "game.event", "payload": {"action": "game_over"}}
             )
+            await sync_to_async(self._set_individual_scores)()
             self.test.ended = True
             await sync_to_async(self.test.save)()
+
+    def _set_individual_scores(self):
+        TestParticipation = apps.get_model('trivia', 'TestParticipation')
+        participations = TestParticipation.objects.filter(test_id=self.test_id)
+        for participation in participations:
+            player = participation.user.player
+            player.points += participation.score
+            player.save()
+            
 
 class GameConsumer(AsyncWebsocketConsumer):
     """
@@ -164,8 +174,10 @@ class GameConsumer(AsyncWebsocketConsumer):
             self.channel_layer.group_discard(self.group_name, self.channel_name)
             return 
         TestParticipation = apps.get_model('trivia', 'TestParticipation')
-        if(TestParticipation.objects.filter(user=self.scope['user'], test_id=self.test_id).count() == 0):
-          self.participation, _ = await sync_to_async(
+        present = await sync_to_async(TestParticipation.objects.filter)(user=self.scope['user'], test_id=self.test_id)
+        count = await sync_to_async(present.count)()
+        if(count == 0):
+          self.participation = await sync_to_async(
                 TestParticipation.objects.create
             )(user=self.scope['user'], test_id=self.test_id)
             
@@ -209,7 +221,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         if(self.session.remaining_players == self.session.players):
             if(self.session.current_task):
                 self.session.current_task.cancel()
-                await self.session.advance(self.group_name, self.channel_layer)
+                await self.session._run_count_down(self.group_name, self.channel_layer)
 
 
     async def action_time_sync(self, data):

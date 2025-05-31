@@ -45,6 +45,12 @@
                 </div>
               </li>
             </ul>
+            <div style="width: 100%; display: flex; justify-content: center; padding: 1rem;">
+              <OptionButton
+                :option="{text: 'Regresar'}"
+                @select="handleSelect"
+              />
+            </div>
           </div>
           <div v-else-if="connected && !sessionStarted && !countDown" class="status-message">Esperando a que el host inicie la partida...</div>
           <!-- Cuenta regresiva -->
@@ -84,6 +90,7 @@ import TimerBar from './TimerBar.vue';
 import OptionButton from './OptionButton.vue';
 import GreatingNotification from './GreatingNotification.vue';
 import FailedNotification from './FailedNotification.vue';
+import { useRouter, useRoute } from 'vue-router';
 
 export default {
   name: 'GameQuiz',
@@ -93,6 +100,8 @@ export default {
   },
   data() {
     return {
+      router:  useRouter(),
+      route: useRoute(),
       socket: null,
       connected: false,
       countDown: false,
@@ -165,6 +174,9 @@ export default {
     if (this.socket) this.socket.close();
   },
   methods:{
+    handleSelect(){
+      this.router.go(-1)
+    },
     submitAnswer(id){
       if(this.answered) return;
       this.socket.send(JSON.stringify({action:'submit',answer_id:id}));

@@ -4,17 +4,25 @@
       <h2><br>MODO EDUCATIVO<br></h2>
       
       <div class="questions-grid">
-        <div v-for="question in questions" :key="question.id" class="question-card">
-          <div class="card-header">
-            <strong>{{ question.text }}</strong>
+        <div v-for="question in questions" :key="question.id" class="transform-wrapper">          
+          <div class="question-card front">
+            <div class="card-header">
+              <strong>{{ question.text }}</strong>
+            </div>
+
+            <div class="card-footer">
+              <span class="difficulty-badge" :class="getDifficultyClass(question.difficulty)">
+                {{ getDificultadText(question.difficulty) }}
+              </span>
+            </div>
           </div>
-          <div class="card-content">
-            {{ question.explanation || "Esta pregunta no tiene explicación" }}
-          </div>
-          <div class="card-footer">
-            <span class="difficulty-badge" :class="getDifficultyClass(question.difficulty)">
-              {{ getDificultadText(question.difficulty) }}
-            </span>
+
+          <div class="question-card back">
+
+            <div class="card-content">
+              {{ question.explanation || "Esta pregunta no tiene explicación" }}
+            </div>
+
           </div>
         </div>
       </div>
@@ -99,6 +107,7 @@ export default {
 
 * {
   font-family: 'Jeju Hallasan', cursive;
+  box-sizing: border-box;
 }
 
 .container {
@@ -117,6 +126,10 @@ export default {
   padding: 30px;
   width: 100%;
   max-width: 1200px;
+
+  display: flex;
+  flex-direction: column; 
+  gap: 30px;
 }
 
 h2 {
@@ -131,23 +144,58 @@ h2 {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
   margin-bottom: 30px;
+  align-items: stretch;
+  height: 100%;
 }
 
+
 .question-card {
-  background: white;
+  position: absolute;
+  background: rgb(210, 210, 210);
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 20px;
   display: flex;
   flex-direction: column;
   height: 100%;
-  transition: transform 0.3s ease;
+  width: 100%;
+  transition: transform 0.3s ease-out;
+  backface-visibility: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 }
 
-.question-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+.front{
+  transform: rotateY(0deg);
 }
+
+.back{
+  transform: rotateY(-180deg);
+}
+
+.transform-wrapper{
+  /* height: fit-content; */
+  /* width: fit-content; */
+
+  height: 150px;
+  width: 100%;
+  border-radius: 1em;
+  
+  perspective: 600px;
+  perspective-origin: 0 0;
+  transform-style: preserve-3d;
+  /* background-color: color-mix(in srgb, rgb(54, 54, 54) 50%, transparent 50%); */
+  /* overflow: hidden; */
+}
+
+.transform-wrapper:hover .question-card.front{ 
+  transform: rotateY(180deg);
+}
+
+.transform-wrapper:hover .question-card.back{ 
+  transform: rotateY(0deg);
+}
+
 
 .card-header {
   font-size: 1.1rem;
