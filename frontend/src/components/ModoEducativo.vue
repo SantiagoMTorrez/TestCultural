@@ -1,28 +1,30 @@
 <template>
   <div class="container">
     <div class="card">
-      <h2><br>MODO EDUCATIVO<br></h2>
+      <h2><strong>MODO EDUCATIVO</strong></h2>
       
-      <div class="questions-grid">
-        <div v-for="question in questions" :key="question.id" class="transform-wrapper">          
-          <div class="question-card front">
-            <div class="card-header">
-              <strong>{{ question.text }}</strong>
+      <div class="scroll-container"> 
+        <div class="questions-grid">
+          <div v-for="question in questions" :key="question.id" class="transform-wrapper">          
+            <div class="question-card front">
+              <div class="card-header">
+                <strong>{{ question.text }}</strong>
+              </div>
+  
+              <div class="card-footer">     
+                <span class="difficulty-badge" :class="getDifficultyClass(question.difficulty)">
+                  {{ getDificultadText(question.difficulty) }}
+                </span>
+              </div>
             </div>
-
-            <div class="card-footer">
-              <span class="difficulty-badge" :class="getDifficultyClass(question.difficulty)">
-                {{ getDificultadText(question.difficulty) }}
-              </span>
+  
+            <div class="question-card back">
+  
+              <div class="card-content">
+                {{ question.explanation || "Esta pregunta no tiene explicación" }}
+              </div>
+  
             </div>
-          </div>
-
-          <div class="question-card back">
-
-            <div class="card-content">
-              {{ question.explanation || "Esta pregunta no tiene explicación" }}
-            </div>
-
           </div>
         </div>
       </div>
@@ -114,7 +116,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  height: 100vh;
   background-image: url('@/assets/patrones.png');
   padding: 20px;
 }
@@ -125,27 +127,41 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 30px;
   width: 100%;
+  height: 70%;
   max-width: 1200px;
 
   display: flex;
   flex-direction: column; 
+  justify-items: stretch;
   gap: 30px;
 }
 
 h2 {
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: fit-content;
   text-align: center;
   color: #2c3e50;
-  margin-bottom: 30px;
   font-size: 24px;
+  vertical-align: middle;
+  margin: 0 !important;
+  display: inline;
 }
 
 .questions-grid {
+  flex-basis: auto;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
-  margin-bottom: 30px;
+  height: fit-content;
   align-items: stretch;
+  align-content: stretch;
+  overflow: hidden;
+}
+
+.scroll-container{
   height: 100%;
+  overflow: auto;
 }
 
 
@@ -157,7 +173,7 @@ h2 {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 200px;
   width: 100%;
   transition: transform 0.3s ease-out;
   backface-visibility: hidden;
@@ -174,18 +190,14 @@ h2 {
 }
 
 .transform-wrapper{
-  /* height: fit-content; */
-  /* width: fit-content; */
-
-  height: 150px;
+  display: block;
+  height: 200px;
   width: 100%;
   border-radius: 1em;
   
   perspective: 600px;
   perspective-origin: 0 0;
   transform-style: preserve-3d;
-  /* background-color: color-mix(in srgb, rgb(54, 54, 54) 50%, transparent 50%); */
-  /* overflow: hidden; */
 }
 
 .transform-wrapper:hover .question-card.front{ 
@@ -239,6 +251,7 @@ h2 {
 }
 
 .salir-btn {
+  flex-basis: 1fr;
   display: block;
   margin: 0 auto;
   text-align: center;
@@ -250,7 +263,6 @@ h2 {
   cursor: pointer;
   font-size: 1.2rem;
   transition: background-color 0.3s;
-  margin-top: 20px;
 }
 
 .salir-btn:hover {
