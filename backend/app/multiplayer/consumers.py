@@ -44,6 +44,9 @@ class GameSession:
         self.end_time = None
         self.host_id = None
         self.counter = 3
+        self.players = 0
+        self.remaining_players = 0
+        self.current_task = None
 
     async def _load_test(self):
         if self.test is None:
@@ -91,9 +94,7 @@ class GameSession:
             group_name,
             {"type": "game.event", "payload": payload}
         )
-        asyncio.create_task(
-            self._schedule_advance(group_name, channel_layer, limit_secs)
-        )
+        self.current_task = asyncio.create_task(self._schedule_advance(group_name, channel_layer, limit_secs))
 
     async def _run_count_down(self, group_name, channel_layer):
         if(self.counter <= 0):
@@ -118,6 +119,7 @@ class GameSession:
 
     async def advance(self, group_name, channel_layer):
         self.current_index += 1
+        self.remaining_players = 0
         if self.current_index < len(self.questions):
             await self._send_current_question(group_name, channel_layer)
         else:
@@ -162,8 +164,14 @@ class GameConsumer(AsyncWebsocketConsumer):
             self.channel_layer.group_discard(self.group_name, self.channel_name)
             return 
         TestParticipation = apps.get_model('trivia', 'TestParticipation')
-        self.participation, _ = await sync_to_async(
-            TestParticipation.objects.get_or_create
+        if(TestParticipation.objects.filter(user=self.scope['user'], test_id=self.test_id).count() == 0):
+          self.participation, _ = await sync_to_async(
+                TestParticipation.objects.create
+            )(user=self.scope['user'], test_id=self.test_id)
+            
+        self.session.players += 1
+        self.participation = await sync_to_async(
+            TestParticipation.objects.get
         )(user=self.scope['user'], test_id=self.test_id)
         # Asignar host si es primer usuario
         if self.session.host_id is None:
@@ -172,6 +180,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.broadcast_players()
 
     async def disconnect(self, close_code):
+        self.session.players -= 1 
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def receive(self, text_data):
@@ -192,9 +201,16 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def action_submit(self, data):
         answer_id = data.get('answer_id')
         pr = await sync_to_async(self._record_response)(answer_id)
-        payload = {'action': 'update_score', 'user_id': self.scope['user'].id, 'score': pr.score}
+        self.session.remaining_players += 1
+            
+        payload = {'action': 'update_score', 'user_id': self.scope['user'].id, 'score': pr}
         await self.channel_layer.group_send(self.group_name, {'type': 'game.event', 'payload': payload})
         await self.broadcast_players()
+        if(self.session.remaining_players == self.session.players):
+            if(self.session.current_task):
+                self.session.current_task.cancel()
+                await self.session.advance(self.group_name, self.channel_layer)
+
 
     async def action_time_sync(self, data):
         ts = timezone.now().timestamp()
