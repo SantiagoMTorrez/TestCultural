@@ -62,7 +62,7 @@
   .audio-container {
     position: fixed;
     top: 20px;
-    left: 20px;
+    right: 20px;
     z-index: 1000;
     background-color: #F7B787; /* color de la paleta */
     border-radius: 12px;

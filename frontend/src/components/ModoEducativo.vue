@@ -1,35 +1,39 @@
 <template>
-  <div class="container">
-    <div class="card">
-      <h2><strong>MODO EDUCATIVO</strong></h2>
-      
-      <div class="scroll-container"> 
+  <div class="educational-container">
+    <div class="panel">
+      <h2 class="panel-title">Modo Educativo</h2>
+
+      <div class="scroll-container">
         <div class="questions-grid">
-          <div v-for="question in questions" :key="question.id" class="transform-wrapper">          
-            <div class="question-card front">
+          <div
+            v-for="question in questions"
+            :key="question.id"
+            class="transform-wrapper"
+          >
+            <div class="card front">
               <div class="card-header">
                 <strong>{{ question.text }}</strong>
               </div>
-  
-              <div class="card-footer">     
-                <span class="difficulty-badge" :class="getDifficultyClass(question.difficulty)">
+              <div class="card-footer">
+                <span
+                  class="difficulty-badge"
+                  :class="getDifficultyClass(question.difficulty)"
+                >
                   {{ getDificultadText(question.difficulty) }}
                 </span>
               </div>
             </div>
-  
-            <div class="question-card back">
-  
+
+            <div class="card back">
               <div class="card-content">
-                {{ question.explanation || "Esta pregunta no tiene explicación" }}
+                {{ question.explanation || 'Esta pregunta no tiene explicación' }}
               </div>
-  
             </div>
           </div>
         </div>
       </div>
 
-      <button class="salir-btn" @click="salir">Salir</button>
+      <button class="btn-secondary exit-btn" @click="salir">Salir</button>
     </div>
   </div>
 </template>
@@ -39,187 +43,190 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 export default {
-  name: "ModoEducativo",
+  name: 'ModoEducativo',
   setup() {
     const router = useRouter();
     const questions = ref([]);
 
-    // Función para convertir el número de dificultad a texto
     const getDificultadText = (difficulty) => {
-      switch(difficulty) {
-        case 1: return "Fácil";
-        case 2: return "Media";
-        case 3: return "Difícil";
-        default: return "Desconocida";
+      switch (difficulty) {
+        case 1:
+          return 'Fácil';
+        case 2:
+          return 'Media';
+        case 3:
+          return 'Difícil';
+        default:
+          return 'Desconocida';
       }
     };
 
-    // Función para obtener la clase CSS según la dificultad
     const getDifficultyClass = (difficulty) => {
-      switch(difficulty) {
-        case 1: return "easy";
-        case 2: return "medium";
-        case 3: return "hard";
-        default: return "unknown";
+      switch (difficulty) {
+        case 1:
+          return 'easy';
+        case 2:
+          return 'medium';
+        case 3:
+          return 'hard';
+        default:
+          return 'unknown';
       }
     };
-
-    // Obtener preguntas al montar el componente
-    onMounted(async () => {
-      await cargarPreguntas();
-    });
 
     const cargarPreguntas = async () => {
       try {
-        const response = await fetch(`http://${window.location.hostname}:8080/trivia/questions/`, {
-          headers: { 
-            "accept": "application/json", 
-            'Authorization': `Token ${localStorage.getItem('token')}` 
-          },
-          method: "GET",
-        });
-
-        if (response.ok) {
-          questions.value = await response.json();
-        } else {
-          console.error("Error al obtener preguntas");
-        }
-      } catch (error) {
-        console.error("Error de conexión:", error);
+        const res = await fetch(
+          `http://${window.location.hostname}:8080/trivia/questions/`,
+          {
+            method: 'GET',
+            headers: {
+              accept: 'application/json',
+              Authorization: `Token ${localStorage.getItem('token')}`,
+            },
+          }
+        );
+        if (res.ok) questions.value = await res.json();
+      } catch (e) {
+        console.error('Error de conexión:', e);
       }
     };
 
+    onMounted(cargarPreguntas);
+
     const salir = () => {
-      console.log('Saliendo...');
       router.push('/mainform');
     };
-    
+
     return {
       questions,
       getDificultadText,
       getDifficultyClass,
-      salir
+      salir,
     };
-  }
-}
+  },
+};
 </script>
 
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Jeju+Hallasan&display=swap');
+<style>
+/* Global styles and variables */
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Giga:wght@400;600&display=swap');
 
-* {
-  font-family: 'Jeju Hallasan', cursive;
-  box-sizing: border-box;
+:root {
+  --font-base: 'Lexend Giga', sans-serif;
+  --c-bg: #fafafa;
+  --c-panel: #ffffff;
+  --c-text: #333333;
+  --c-primary: #004d40;
+  --c-secondary: #00796b;
+  --c-error: #c62828;
+  --radius: 12px;
+  --shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-.container {
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-base);
+  color: var(--c-text);
+}
+
+body {
+  background: var(--c-bg);
+}
+</style>
+
+<style scoped>
+.educational-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-image: url('@/assets/patrones.png');
-  padding: 20px;
+  min-height: 100vh;
+  padding: 2rem;
+  background: black;
+  background-image: url('@/assets/patron-move.gif');
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
-.card {
-  background: rgb(255, 255, 255);
-  border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 30px;
+.panel {
+  background: #BBB;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
   width: 100%;
-  height: 70%;
   max-width: 1200px;
-
   display: flex;
-  flex-direction: column; 
-  justify-items: stretch;
-  gap: 30px;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-h2 {
-  flex-grow: 0;
-  flex-shrink: 0;
-  flex-basis: fit-content;
+.panel-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--c-primary);
   text-align: center;
-  color: #2c3e50;
-  font-size: 24px;
-  vertical-align: middle;
-  margin: 0 !important;
-  display: inline;
+}
+
+.scroll-container {
+  overflow: auto;
+  flex-grow: 1;
 }
 
 .questions-grid {
-  flex-basis: auto;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  height: fit-content;
-  align-items: stretch;
-  align-content: stretch;
-  overflow: hidden;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
 }
 
-.scroll-container{
-  height: 100%;
-  overflow: auto;
+.transform-wrapper {
+  perspective: 600px;
+  position: relative;
+  height: 200px;
 }
 
-
-.question-card {
+.card {
   position: absolute;
-  background: rgb(210, 210, 210);
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  width: 100%;
+  height: 100%;
+  background: var(--c-panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backface-visibility: hidden;
+  transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
-  height: 200px;
-  width: 100%;
-  transition: transform 0.3s ease-out;
-  backface-visibility: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  padding: 1rem;
 }
 
-.front{
+.front {
   transform: rotateY(0deg);
 }
 
-.back{
+.back {
   transform: rotateY(-180deg);
 }
 
-.transform-wrapper{
-  display: block;
-  height: 200px;
-  width: 100%;
-  border-radius: 1em;
-  
-  perspective: 600px;
-  perspective-origin: 0 0;
-  transform-style: preserve-3d;
-}
-
-.transform-wrapper:hover .question-card.front{ 
+.transform-wrapper:hover .front {
   transform: rotateY(180deg);
 }
 
-.transform-wrapper:hover .question-card.back{ 
+.transform-wrapper:hover .back {
   transform: rotateY(0deg);
 }
 
-
 .card-header {
-  font-size: 1.1rem;
-  margin-bottom: 15px;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
   border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
+  padding-bottom: 0.5rem;
 }
 
 .card-content {
   flex-grow: 1;
-  margin-bottom: 15px;
-  line-height: 1.5;
+  margin: 0.5rem 0;
+  line-height: 1.4;
 }
 
 .card-footer {
@@ -228,54 +235,47 @@ h2 {
 }
 
 .difficulty-badge {
-  padding: 5px 10px;
-  border-radius: 15px;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius);
   font-size: 0.8rem;
-  color: white;
+  color: #fff;
 }
 
 .difficulty-badge.easy {
-  background-color: #4CAF50;
+  background: #4caf50;
 }
 
 .difficulty-badge.medium {
-  background-color: #FFC107;
+  background: #ffc107;
 }
 
 .difficulty-badge.hard {
-  background-color: #F44336;
+  background: #f44336;
 }
 
 .difficulty-badge.unknown {
-  background-color: #9E9E9E;
+  background: #9e9e9e;
 }
 
-.salir-btn {
-  flex-basis: 1fr;
-  display: block;
-  margin: 0 auto;
-  text-align: center;
-  padding: 12px 25px;
-  background-color: #ff3333;
-  color: white;
+.exit-btn {
+  align-self: center;
+  padding: 0.75rem 1.5rem;
+  background: var(--c-secondary);
+  color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius);
+  font-size: 1rem;
   cursor: pointer;
-  font-size: 1.2rem;
-  transition: background-color 0.3s;
+  transition: background 0.3s;
 }
 
-.salir-btn:hover {
-  background-color: #7c716d;
+.exit-btn:hover {
+  background: var(--c-primary);
 }
 
 @media (max-width: 768px) {
-  .card {
-    padding: 20px;
-  }
-  
   .questions-grid {
     grid-template-columns: 1fr;
   }
 }
-</style>    
+</style>

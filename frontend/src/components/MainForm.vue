@@ -1,56 +1,72 @@
 <template>
-  <div class="main-container">
-    <div class="form-box">
-      <div class="header-left">
-        <img src="@/assets/avatar.png" alt="Avatar" class="avatar" />
-        <div class="user-info">
-          <p>{{ userName }}</p>
+  <div class="page-wrapper">
+    <header class="site-header">
+      <div class="header-content">
+        <nav class="nav-actions">
+          <button class="nav-btn challenge" @click="selectMode('Desafío')">Desafío</button>
+          <button class="nav-btn educational" @click="modoEducativo">Educativo</button>
+          <button class="nav-btn ranking" @click="selectMode('Ranking')">Ranking</button>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-overlay">
+        <h1 class="hero-title">Trivia Bolivia</h1>
+      </div>
+    </section>
+
+    <main class="main-container">
+      <aside class="user-panel">
+        <div class="avatar-wrapper">
+          <img src="@/assets/avatar.png" alt="Avatar" class="avatar" />
+          <p class="user-name">{{ userName }}</p>
         </div>
-      </div>
-      <div class="header-right">
-        <button class="mode-btn challenge" @click="selectMode('Desafío')">Modo Desafío</button>
-        <button class="mode-btn educational" @click="modoEducativo">Modo Educativo</button>
-        <button class="mode-btn ranking" @click="selectMode('Ranking')">Ver Ranking</button>
-      </div>
+        <button @click="logout" class="logout-btn">Cerrar sesión</button>
+      </aside>
 
-      <h3 class="title">Seleccionar Prueba</h3>
+      <section class="form-box">
+        <h2 class="section-title">Crear Prueba</h2>
 
-      <div class="category-selection">
-        <button
-          v-for="category in categories"
-          :key="category.id"
-          class="category-btn"
-          :class="{ selected: selectedCategory?.id === category.id }"
-          @click="selectCategory(category)"
-        >
-          {{ category.name }}
+        <div class="category-selection">
+          <button
+            v-for="category in categories"
+            :key="category.id"
+            class="category-btn"
+            :class="{ selected: selectedCategory?.id === category.id }"
+            @click="selectCategory(category)"
+          >
+            {{ category.name }}
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label>Elegir Dificultad</label>
+          <select v-model="selectedDifficulty" class="input-control">
+            <option value="Fácil">Fácil</option>
+            <option value="Medio">Medio</option>
+            <option value="Difícil">Difícil</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Número de preguntas</label>
+          <input
+            type="number"
+            v-model.number="numQuestions"
+            min="1"
+            placeholder="10"
+            class="input-control"
+          />
+          <p v-if="errorQuestions" class="form-error">{{ errorQuestions }}</p>
+        </div>
+
+        <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
+        <button @click="startQuiz" class="start-btn" :disabled="!!errorMessage || !!errorQuestions">
+          ¡VAMOS!
         </button>
-      </div>
-
-      <h3>Elegir Dificultad</h3>
-      <select v-model="selectedDifficulty" class="difficulty-select">
-        <option value="Fácil">Fácil</option>
-        <option value="Medio">Medio</option>
-        <option value="Difícil">Difícil</option>
-      </select>
-
-      <h3>Número de preguntas</h3>
-      <input
-        type="number"
-        v-model.number="numQuestions"
-        min="1"
-        placeholder="10"
-        class="questions-input"
-      />
-      <p v-if="errorQuestions" class="error">{{ errorQuestions }}</p>
-
-      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-      <button @click="startQuiz" class="start-btn" :disabled="!!errorMessage || !!errorQuestions">
-        ¡VAMOS!
-      </button>
-    </div>
-
-    <button @click="logout" class="logout-btn">CERRAR SESIÓN</button>
+      </section>
+    </main>
   </div>
 </template>
 
@@ -81,243 +97,157 @@ export default {
       userName.value = localStorage.getItem('dataname') || 'Usuario';
 
       try {
-        const response = await fetch(`http://${window.location.hostname}:8080/trivia/categories/`, {
-          headers: {
-            accept: 'application/json',
-            Authorization: `Token ${token}`,
-          },
+        const res = await fetch(`http://${window.location.hostname}:8080/trivia/categories/`, {
+          headers: { accept: 'application/json', Authorization: `Token ${token}` },
           method: 'GET',
         });
-        if (response.ok) {
-          categories.value = await response.json();
-        } else {
-          const errorText = await response.text();
-          errorMessage.value = `No se pudieron cargar las categorías: ${response.status} ${errorText}`;
-          if (response.status === 401) {
-            errorMessage.value += ' Token inválido, por favor inicia sesión nuevamente.';
-            setTimeout(() => router.push('/login'), 2000);
-          }
+        if (res.ok) categories.value = await res.json();
+        else {
+          const txt = await res.text();
+          errorMessage.value = `Error ${res.status}: ${txt}`;
+          if (res.status === 401) setTimeout(() => router.push('/login'), 2000);
         }
-      } catch (error) {
-        errorMessage.value = 'Error de conexión al servidor.';
+      } catch {
+        errorMessage.value = 'No se pudo conectar al servidor.';
       }
     });
 
-    const selectCategory = (category) => {
-      selectedCategory.value = category;
-    };
-
-    const selectMode = (mode) => {
-      if(mode == 'Ranking'){
-        router.push('/player-ranking');
-      }
-      else if(mode == 'Desafío'){
-        router.push('/lobby');
-      }
-    };
+    const selectCategory = (cat) => (selectedCategory.value = cat);
+    const selectMode = (mode) => router.push(mode === 'Ranking' ? '/player-ranking' : '/lobby');
+    const modoEducativo = () => router.push('/modoEducativo');
 
     const startQuiz = () => {
       errorQuestions.value = '';
-      if (!selectedCategory.value) {
-        errorMessage.value = 'Por favor, selecciona una categoría.';
-        return;
-      }
-      if (!numQuestions.value || numQuestions.value < 1) {
-        errorQuestions.value = 'El número de preguntas debe ser mayor o igual a 1.';
-        return;
-      }
+      if (!selectedCategory.value) { errorMessage.value = 'Selecciona una categoría.'; return; }
+      if (numQuestions.value < 1) { errorQuestions.value = 'Debe ser >= 1.'; return; }
 
-      router.push({
-        path: '/quizstart',
-        query: {
-          categoryId: selectedCategory.value.id,
-          categoryName: selectedCategory.value.name,
-          difficulty: selectedDifficulty.value,
-          n: numQuestions.value,
-        },
-      });
+      router.push({ path: '/quizstart', query: {
+        categoryId: selectedCategory.value.id,
+        categoryName: selectedCategory.value.name,
+        difficulty: selectedDifficulty.value,
+        n: numQuestions.value,
+      }});
     };
 
-    const logout = () => {
-      localStorage.removeItem('token');
-      localStorage.removeItem('dataname');
-      router.push('/login');
-    };
+    const logout = () => { localStorage.clear(); router.push('/login'); };
 
-    const modoEducativo = () => {
-      router.push('/modoEducativo');
-    };
-
-    return {
-      userName,
-      categories,
-      selectedCategory,
-      selectedDifficulty,
-      numQuestions,
-      errorMessage,
-      errorQuestions,
-      modoEducativo,
-      selectCategory,
-      selectMode,
-      startQuiz,
-      logout,
-    };
+    return { userName, categories, selectedCategory, selectedDifficulty, numQuestions,
+      errorMessage, errorQuestions, selectCategory, selectMode, modoEducativo, startQuiz, logout };
   },
 };
 </script>
 
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Jeju+Hallasan&display=swap');
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Giga&display=swap');
 
-* {
-  font-family: 'Jeju Hallasan', cursive;
-  box-sizing: border-box;
+:root {
+  --font-base: 'Lexend Giga', sans-serif;
+  --c-bg: #fafafa;
+  --c-panel: #ffffff;
+  --c-text: #333333;
+  --c-primary: #004d40;
+  --c-secondary: #00796b;
+  --c-error: #c62828;
+  --radius: 12px;
+  --shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-.main-container {
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-base);
+  color: var(--c-text);
+}
+</style>
+
+<style scoped>
+.page-wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
-  padding: 2rem;
   background-image: url('@/assets/patron-move.gif');
   background-size: cover;
   background-position: center;
 }
 
-.form-box {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 3rem 2rem;
-  border-radius: 20px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  max-width: 700px;
-  width: 100%;
-  position: relative;
-  animation: fadeIn 1s ease-in-out;
+.site-header {
+  background: #000;
+  color: #fff;
+  box-shadow: var(--shadow);
 }
-
-.header-left,
-.header-right {
-  position: absolute;
-  top: 20px;
-}
-
-.header-left {
-  left: 20px;
+.header-content {
+  max-width: 1200px;
+  margin: auto;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  padding: 1rem;
 }
 
-.header-right {
-  right: 20px;
+.nav-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.nav-btn { background: transparent; border: none; padding: 0.5rem 1rem; border-radius: var(--radius); cursor: pointer; color: #fff; transition: background 0.3s; }
+.nav-btn:hover { background: var(--c-secondary); }
+
+.hero {
+  height: 200px;
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+.hero-overlay {
+  background: rgba(0,0,0,0.4);
+  padding: 1rem 2rem;
+  border-radius: var(--radius);
+}
+.hero-title { color: #fff; font-size: 2rem; font-weight: 200; }
+
+.main-container {
+  background: var(--c-panel);
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: -80px auto 2rem;
+  padding: 0 1rem;
+  border-radius: var(--radius);
+  z-index: 10;
 }
 
-.avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #ddd;
+.user-panel { background: var(--c-panel); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem; text-align: center; }
+.avatar { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 0.5rem; }
+.user-name { font-weight: bold; }
+.logout-btn { background: var(--c-error); padding: 0.5rem 1rem; border: none; border-radius: var(--radius); color: #fff; cursor: pointer; }
+.logout-btn:hover { background: #a62828; }
+
+.form-box { padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+.section-title { font-size: 1.4rem; border-left: 4px solid var(--c-primary); padding-left: 0.5rem; margin-bottom: 1rem; }
+.category-selection { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.category-btn { padding: 0.5rem 1rem; border: 1px solid var(--c-primary); border-radius: var(--radius); background: transparent; cursor: pointer; }
+.category-btn.selected { background: var(--c-primary); color: #fff; }
+.category-btn:hover:not(.selected) { background: var(--c-secondary); color: #fff; }
+
+.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.input-control { padding: 0.6rem 1rem; border: 1px solid #ccc; border-radius: var(--radius); }
+.form-error { color: var(--c-error); }
+.start-btn { align-self: flex-start; padding: 0.75rem 2rem; background: var(--c-primary); color: #fff; border: none; border-radius: var(--radius); cursor: pointer; }
+.start-btn:disabled { background: #ccc; cursor: not-allowed; }
+.start-btn:hover:not(:disabled) { background: var(--c-secondary); }
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .main-container { display: block; margin: -40px 1rem 2rem; padding: 1rem; }
+  .user-panel { margin-bottom: 1rem; }
+  .form-box { padding: 1rem; }
 }
-
-.user-info p {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin: 0;
-}
-
-.mode-btn {
-  padding: 10px 20px;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s;
-  width: 110px;
-}
-
-.mode-btn.challenge { background-color: #ff3333; }
-.mode-btn.educational { background-color: #05ab68; }
-.mode-btn.ranking { background-color: #338bff; }
-.mode-btn:hover { background-color: #7c716d; }
-
-.title {
-  font-size: 1.8rem;
-  margin-top: 70px;
-  margin-bottom: 20px;
-}
-
-.category-selection {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-around;
-  margin-bottom: 20px;
-  width: 100%;
-  overflow-x: auto;
-}
-
-.category-btn {
-  padding: 12px 20px;
-  margin: 5px;
-  background-color: #008CBA;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  white-space: nowrap;
-}
-.category-btn:hover { background-color: #4e6267; }
-.category-btn.selected { background-color: #05ab68; }
-
-.difficulty-select,
-.questions-input {
-  padding: 12px;
-  margin-top: 10px;
-  font-size: 1.1rem;
-  width: 70%;
-  background-color: #e3dbdc;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-.start-btn {
-  padding: 16px 35px;
-  background-color: #6D004D;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.3rem;
-  cursor: pointer;
-  margin-top: 25px;
-  transition: background-color 0.3s;
-}
-.start-btn:hover { background-color: #52003B; }
-.start-btn:disabled { background-color: #ccc; cursor: not-allowed; }
-
-.logout-btn {
-  margin-top: 30px;
-  background-color: #ff3333;
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 10px;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-.logout-btn:hover { background-color: #7c716d; }
-
-.error { color: #ff3333; font-size: 1.2rem; margin-top: 10px; margin-bottom: 10px; }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0);     }
+@media (max-width: 600px) {
+  .hero { height: 150px; }
+  .hero-title { font-size: 1.5rem; }
+  .nav-actions { justify-content: center; }
+  .header-content { flex-direction: column; }
+  .section-title { font-size: 1.2rem; }
+  .category-btn { font-size: 0.9rem; padding: 0.4rem 0.8rem; }
+  .input-control { font-size: 0.9rem; padding: 0.5rem; }
+  .start-btn { width: 100%; padding: 0.6rem; }
 }
 </style>

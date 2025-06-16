@@ -1,4 +1,5 @@
 <template>
+  <div class = "roller">
     <div class="ranking-container">
       <h2 class="ranking-title">Ranking de Jugadores</h2>
   
@@ -15,7 +16,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(player, index) in ranking" :key="player.email" :class="{ 'top-player': index < 3 }">
+            <tr
+              v-for="(player, index) in ranking"
+              :key="player.email"
+              :class="{ 'top-player': index < 3 }"
+            >
               <td>
                 <span v-if="index === 0">🥇</span>
                 <span v-else-if="index === 1">🥈</span>
@@ -32,156 +37,173 @@
   
       <button class="back-btn" @click="goBack">← Volver</button>
     </div>
-  </template>
-  
-  <script>
-  import { ref, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
-  
-  export default {
-    name: 'RankingView',
-    setup() {
-      const ranking = ref([]);
-      const loading = ref(true);
-      const router = useRouter();
-  
-      onMounted(async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          router.push('/login');
-          return;
-        }
-        try {
-          const response = await fetch(`http://${window.location.hostname}:8080/trivia/test/player-rank/`, {
+  </div>
+</template>
+
+<script>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+export default {
+  name: 'RankingView',
+  setup() {
+    const ranking = ref([]);
+    const loading = ref(true);
+    const router = useRouter();
+
+    onMounted(async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+      try {
+        const response = await fetch(
+          `http://${window.location.hostname}:8080/trivia/test/player-rank/`,
+          {
             headers: {
               accept: 'application/json',
               Authorization: `Token ${token}`,
             },
-          });
-          if (response.ok) {
-            ranking.value = await response.json();
-          } else {
-            console.error('Error al obtener el ranking:', response.statusText);
           }
-        } catch (error) {
-          console.error('Error de red al obtener el ranking:', error);
-        } finally {
-          loading.value = false;
+        );
+        if (response.ok) {
+          ranking.value = await response.json();
+        } else {
+          console.error('Error al obtener el ranking:', response.statusText);
         }
-      });
-  
-      const goBack = () => {
-        router.go(-1);
-      };
-  
-      return {
-        ranking,
-        loading,
-        goBack,
-      };
-    },
-  };
-  </script>
-  
-  <style scoped>
-    @import url('https://fonts.googleapis.com/css2?family=Jeju+Hallasan&display=swap');
+      } catch (error) {
+        console.error('Error de red al obtener el ranking:', error);
+      } finally {
+        loading.value = false;
+      }
+    });
 
-    * {
-    font-family: 'Jeju Hallasan', cursive;
-    box-sizing: border-box;
-    }
+    const goBack = () => {
+      router.go(-1);
+    };
 
-    .ranking-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 2rem;
-    background-image: url('@/assets/patron-move.gif');
-    background-size: cover;
-    background-position: center;
-    }
+    return {
+      ranking,
+      loading,
+      goBack,
+    };
+  },
+};
+</script>
 
-  
-  .ranking-title {
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-    color: #333;
-    font-weight: 600;
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Giga&display=swap');
 
-    background-color: color-mix(in srgb, white 50%, transparent 50%);
-    padding: 1em;
-    border-radius: 0.5em;
+:root {
+  --font-base: 'Lexend Giga', sans-serif;
+  --c-bg: #fafafa;
+  --c-panel: #ffffff;
+  --c-text: #333333;
+  --c-primary: #004d40;
+  --c-secondary: #00796b;
+  --c-error: #c62828;
+  --radius: 12px;
+  --shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
 
-  }
-  
-  .ranking-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 2rem;
-    background-color: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .ranking-table th,
-  .ranking-table td {
-    padding: 1rem;
-    text-align: center;
-    font-size: 1.1rem;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .ranking-table th {
-    background-color: #338bff;
-    color: white;
-    font-weight: bold;
-  }
-  
-  .ranking-table tr:last-child td {
-    border-bottom: none;
-  }
-  
-  .ranking-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  .ranking-table tr.top-player {
-    font-weight: bold;
-    background-color: #ffeaa7 !important;
-    color: #2d3436;
-  }
-  
-  .loading {
-    font-size: 1.2rem;
-    color: #555;
-    margin: 2rem 0;
-  }
-  
-  .back-btn {
-    padding: 12px 25px;
-    background-color: #6D004D;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  .back-btn:hover {
-    background-color: #52003B;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  </style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-base);
+  color: var(--c-text);
+}
+
+body {
+  background: var(--c-bg);
+}
+</style>
+
+<style scoped>
+
+.roller{
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-image: url('@/assets/patron-move.gif');
+}
+
+.ranking-container {
+  max-width: 800px;
+  padding: 1.5rem;
+  height: 100vh;
+  width: fit-content;
+  margin: auto;
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+
+}
+
+.ranking-title {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: var(--c-primary);
+  text-align: center;
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--c-text);
+  padding: 1rem 0;
+}
+
+.ranking-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.ranking-table th,
+.ranking-table td {
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-size: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.ranking-table th {
+  background: var(--c-primary);
+  color: #fff;
+  font-weight: bold;
+}
+
+.ranking-table tr:nth-child(even) td {
+  background: #f9f9f9;
+}
+
+.top-player td {
+  background: #ffeaa7;
+  font-weight: bold;
+}
+
+.back-btn {
+  display: block;
+  margin: 1.5rem auto 0;
+  padding: 0.75rem 2rem;
+  background: var(--c-secondary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.back-btn:hover {
+  background: var(--c-primary);
+}
+
+#app{
+  background: black;
+}
+</style>
